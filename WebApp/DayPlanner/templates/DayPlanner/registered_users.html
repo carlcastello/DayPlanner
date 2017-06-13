@@ -1,0 +1,372 @@
+{% extends 'base_cp.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Registered Users{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block main_content %}
+<div class="row">
+	<div class="col-lg-12">
+		<h1 class="page-header">Registered Users</h1>
+	</div>
+</div>
+
+<!-- <div class="row">
+	<div class="col-lg-12">
+			<a href="#createStoreModal" class="btn btn-warning btn-fullwidth bottom-margin" data-id="{{ franchise.pk }}" data-toggle="modal">
+				<i class="fa fa-plus" aria-hidden="true"></i>
+				&nbsp;Add Store
+			</a>	
+	</div>
+</div> -->
+
+{% if messages %}
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible">
+			{{ message }}
+		</div>
+	{% endfor %}
+{% endif %}
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info ">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-xs-6">
+						<span class="panel-title panel-title-with-buttons"> 
+						Managers
+						</span>
+					</div>
+					<div class="col-xs-6 text-right">
+						<!-- <a class="btn btn-success btn-user-create" data-model="manager" data-toggle="modal" data-id="{{ franchise.pk }}" href="#createUserModal">Add Manager</a> -->
+						<a href="#createStoreModal" class="btn btn-success" data-id="{{ franchise.pk }}" data-toggle="modal">
+							<i class="fa fa-plus" aria-hidden="true"></i>
+							&nbsp;Add Store
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body">
+					{% for manager in managers %}
+					<div class="col-lg-6 col-md-6">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-xs-3">
+										<i class="fa fa-user fa-5x"></i>
+									</div>
+									<div class="col-xs-9 text-right">
+										<div class="huge">{{ manager.user.username }}</div>
+										<div>{{ manager.user.first_name }} {{ manager.user.last_name }}</div>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer">
+								<div class="row">
+									<div class="col-lg-6">
+										<a class="btn btn-warning btn-fullwidth" href="/app">Change Password</a>
+									</div>
+									<div class="col-lg-6">
+										<a class="btn btn-danger btn-fullwidth btn-user-delete {% if request.user.pk == manager.user.pk %} disabled  {% endif %} " 
+										href="#deleteUserModal" 
+										data-id="{{ manager.user.pk }}" 
+										data-toggle="modal">
+											Delete
+										</a>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					{% endfor %}
+
+					<div class="col-lg-6 col-md-6">
+					<a class="btn-user-create" data-model="manager" data-toggle="modal" data-id="{{ franchise.pk }}" href="#createUserModal">
+						<div class="panel panel-default">
+							<div class="panel-heading" style="height: 155px">
+								
+							</div>
+						</div>
+					</a>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% for store in stores %}
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info ">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-xs-6">
+						<span class="panel-title panel-title-with-buttons"> 
+						<a href="#{{ store.pk }}" data-toggle="collapse">{{ store.name }} - {{ store.address }}</a>
+						</span>
+					</div>
+					<div class="col-xs-6 text-right">
+						<!-- <a class=" btn-user-create" data-model="store" data-toggle="modal" data-id="{{ store.pk }}" href="#createUserModal">
+							Add Employee
+						</a> -->
+						<a href="#deleteStoreModal" data-toggle="modal" class="btn btn-danger btn-store-delete" data-id="{{ store.pk }}">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+							&nbsp;Delete Store
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body collapse" id="{{ store.pk }}">
+				{% for employee in store.employee_set.all %}
+				<!-- <div class="panel-group col-lg-6 col-md-6" id="accordion"> -->
+				<div class="col-lg-4 col-md-4">
+					<div class="panel panel-primary">
+						<div class="panel-heading">
+							<div class="row">
+								<div class="col-xs-3">
+									<i class="fa fa-user fa-5x"></i>
+								</div>
+								<div class="col-xs-9 text-right">
+									<div class="huge">{{ employee.user.username }}</div>
+									<div>{{ employee.user.first_name }} {{ employee.user.last_name }}</div>
+								</div>
+							</div>
+						</div>	
+							<div class="panel-footer">
+								<div class="row">
+									<div class="col-lg-6">
+										<a class="btn btn-warning btn-fullwidth" href="/app">Change Password</a>
+									</div>
+									<div class="col-lg-6">
+										<a class="btn btn-danger btn-fullwidth btn-user-delete" href="#deleteUserModal" data-toggle="modal" data-id="{{ employee.user.pk }}">Delete User</a>
+									</div>
+								</div>
+							</div>
+						</div>
+				</div>
+				{% endfor %}
+
+				<div class="col-lg-4 col-md-4">
+					<a class=" btn-user-create" data-model="store" data-toggle="modal" data-id="{{ store.pk }}" href="#createUserModal">
+						<div class="panel panel-default">
+							<div class="panel-heading" style="height: 155px">
+								
+							</div>
+						</div>
+					</a>
+				</div>
+
+			</div>
+			<!-- <div class="panel-footer">
+				<a href="#deleteStoreModal" data-toggle="modal" class="btn btn-danger btn-fullwidth btn-store-delete" data-id="{{ store.pk }}">
+					<i class="fa fa-trash" aria-hidden="true"></i>
+					&nbsp;Delete Store
+				</a>
+			</div> -->
+		</div>
+	</div>
+</div>
+{% endfor %}
+
+
+<!-- Modal -->
+<div class="modal fade createmodal" id="createUserModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Create User</h4>
+			</div>
+			<form data-toggle="validator" role="form" method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					{% for field in form %}
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                            {{ field.error }}
+                            {{ field|add_class:"form-control" }}
+                        </div>
+                    {% endfor %}
+				</div>
+				<div class="modal-footer">
+					<div class="form-group">
+						<button type="submit" class="btn btn-success">Submit</button>
+						<button class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+ 
+<!-- Modal -->
+<div class="modal fade createmodal" id="createStoreModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Create Store</h4>
+			</div>
+			<form data-toggle="validator" role="form" id="createStoreForm">
+			<div class="modal-body">
+				<div class="form-group has-feedback">
+					<label for="inputUsername" class="control-label">Store Name</label>
+					<input type="text" class="form-control" pattern="[A-Za-z0-9 ]+" id="inputstorename" required>
+				</div>
+				<div class="form-group has-feedback">
+					<label for="inputUsername" class="control-label">Store Address</label>
+					<input type="text" class="form-control" pattern="[A-Za-z0-9 ]+" id="inputstoreaddress" required>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-success" type="submit">Create</button>
+				<button class="btn btn-default" data-dismiss="modal">Close</button>					
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteUserModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Delete User</h4>
+			</div>
+			<div class="modal-body">
+				<div class="text-center">
+					<h2>
+						Are you sure you want to delete this user?
+					</h2>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group">
+					<a href="" class="btn btn-danger" id="confirm-user-delete">Delete</a>
+					<button class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteStoreModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Delete Store</h4>
+			</div>
+			<div class="modal-body">
+				<div class="text-center">
+					<h2>
+						Are you sure you want to delete this Store?
+					</h2>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group">
+					<a href="" class="btn btn-danger" id="confirm-store-delete">Delete</a>
+					<button class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/validator.js' %}"></script>
+
+<script>	
+$(function() { //shorthand document.ready function
+    $('#createStoreForm').on('submit', function(event) { //use on if jQuery 1.7+
+        event.preventDefault();  
+        var store_name = $("#inputstorename").val()
+        var store_address = $("#inputstoreaddress").val()
+        console.log(store_name + " " + store_address); //use the console for debugging, F12 in Chrome, not alerts
+    	window.location.replace("/app/users/create-store/"+store_name+"/"+store_address);
+    });
+});
+</script>
+
+<script>
+var object_id;
+var object_value;
+// http://jsfiddle.net/Au9tc/605/
+$(document).on("click", ".btn-user-create", function () {
+	object_id = $(this).data("id");
+	object_model = $(this).data("model");
+	$("#id_objectId").val(object_id);
+	$("#id_objectValue").val(object_model);
+});
+</script>
+
+<script>
+$(document).on("click", ".btn-user-delete", function () {
+	var user_id = $(this).data("id");
+	var user_id = user_id.toString()
+	$("#confirm-user-delete").attr("href","delete-user/"+ user_id);
+
+});
+</script>
+
+<script>
+$(document).on("click", ".btn-store-delete", function () {
+	var store_id = $(this).data("id");
+	$("#confirm-store-delete").attr("href","delete-store/"+ store_id);
+});
+</script>
+
+<script type="text/javascript">
+$(".createmodal").on("hidden.bs.modal", function (event) {
+	$(this).find("input,textarea,select").val('').end();
+	$(".form-group").removeClass("has-error");
+	$(".form-group").removeClass("has-danger");
+})
+</script>
+
+
+{% endblock %}
+
+<!-- 
+<input type="text" id="objectValue" name="objectValue" value="" >
+					<input type="text" id="objectId" name="objectId" value="" >
+					<div class="form-group has-feedback">
+						<label for="inputUsername" class="control-label">Username</label>
+						<input type="text" class="form-control" id="inputUsername" placeholder="JSmith" required>
+						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+					</div>
+					<div class="form-group has-feedback">
+						<label for="inputFirstname" class="control-label">Firstname</label>
+						<input type="text" pattern="^[_A-z]{1,}$" class="form-control" id="inputFirstname" placeholder="John" required>
+						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+					</div>
+					<div class="form-group has-feedback">
+						<label for="inputLastname" class="control-label">Lastname</label>
+						<input type="text" pattern="^[_A-z]{1,}$" class="form-control" id="inputLastname" placeholder="Smith" required>
+						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="control-label">Password</label>
+						<div class="form-inline row">
+							<div class="form-group col-sm-6">
+								<input type="password" data-minlength="8" class="form-control" id="inputPassword" placeholder="Password" required>
+								<div class="help-block">Minimum of 8 characters</div>
+							</div>
+							<div class="form-group col-sm-6">
+								<input type="password" class="form-control" id="inputPasswordConfirm" data-match="#inputPassword" data-match-error="Whoops, these don't match" placeholder="Confirm" required>
+							</div>
+						</div>
+					</div> -->

@@ -1,0 +1,143 @@
+{% extends 'base_cp.html' %}
+
+{% load static %}
+
+{% block title %}Schedule Planner{% endblock %}
+
+{% block css %}
+	<link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main_content %}
+<div class="row">
+	<div class="col-lg-12">
+		<h1 class="page-header">Schedule Planner</h1>
+	</div>
+</div>
+{% for store, employees in stores.items %}
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info ">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-xs-6">
+						<a href="#{{ store.pk }}" data-toggle="collapse">
+						<span class="panel-title panel-title-with-buttons"> 
+						{{ store.name }} - {{ store.address }}
+						</span>
+						</a>
+					</div>
+					<div class="col-xs-6 text-right">
+						<a href="{% url 'DayPlanner:schedule_planner' lastWeek %}" class="btn btn-success">
+							<i class="fa fa-arrow-left" aria-hidden="true"></i>
+							Last Week
+						</a>
+						<a href="{% url 'DayPlanner:schedule_planner' %}" class="btn btn-warning">
+							Now
+						</a>
+						<a href="{% url 'DayPlanner:schedule_planner' nextWeek %}" class="btn btn-success">
+							Next Week
+							<i class="fa fa-arrow-right" aria-hidden="true"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body collapse in" id="{{ store.pk }}">
+				<table class="table table-condensed table-bordered" id="schedule-table">
+					<thead>
+						<tr>
+							<th>
+
+							</th>
+							{% for day in week %}
+							<th>
+								<div class="row">
+									<div class="col-lg-12">
+										{{ day.1 }}
+										<br>
+										{{ day.2 }}
+									</div>
+								</div>
+								<br/>
+								<div class="row">
+									<div class="col-lg-12">
+										<a href="" class="btn btn-success btn-fullwidth"> Save</a>
+									</div>
+								</div>
+							</th>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for employee, week in employees.items %}
+						<tr>
+							<td>
+								{{ employee.user.first_name }} {{ employee.user.last_name }}
+							</td>
+							{% for day in week %}
+							<!-- {{ day.endTime }} -->
+							<td>
+							 	<div class="row">
+	        						<div class='col-lg-12'>
+										<div class="form-group">
+											<div class="input-group date">
+												<input type="text" class="form-control" {% if isBefore %} disabled {% endif %} id="from-{{ employee.user.pk }}-{{ day.1 }}" placeholder="From:" {% if day %} value="{{ day.startingTime }}" {% endif %}/>
+												<span class="input-group-addon">
+													<i class="fa fa-clock-o" aria-hidden="true"></i>
+												</span>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="input-group date">
+												<input type="text" class="form-control" {% if isBefore %} disabled {% endif %} id="to-{{ employee.user.pk }}-{{ day.1 }}"  placeholder="To:" {% if day %} value="{{ day.endTime }}"" {% endif %}/>
+												<span class="input-group-addon">
+													<i class="fa fa-clock-o" aria-hidden="true"></i>
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</td>
+							{% endfor %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+					<!-- {{ employee.user.first_name }} -->
+			</div>
+			<div class="panel-footer">
+				<div class="row">	
+					<div class="col-lg-12 text-right">
+						<a href="/app" class="btn btn-danger">Clear</a>
+						<a href="/app" class="btn btn-warning">Export as PDF</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/moment.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+
+<script type="text/javascript">
+$(function () {
+	$(".input-group.date").datetimepicker({
+		format: 'LT'
+	});
+});
+</script>
+
+<script>
+$(document).on("click", ".btn-user-delete", function () {
+
+	$("#confirm-user-delete").attr("href","delete-user/"+ user_id);
+
+});
+</script>
+
+
+{% endblock %}

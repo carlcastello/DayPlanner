@@ -1,0 +1,268 @@
+{% extends 'base_cp.html' %}
+
+{% block title %}Time Clock{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block main_content %}
+<div class="row">
+	<div class="col-lg-12">
+		<h1 class="page-header">Time Clock</h1>
+	</div>
+</div>
+
+{% for store in stores %}
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info ">
+			<div class="panel-heading">
+				<div class="panel-title"> 
+					{{ store.name }} - {{ store.address }} 
+				</div>
+			</div>
+			<div class="panel-body">
+				<div class="panel-group" id="accordion">
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Sunday">
+									Sunday 
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Sunday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Monday">
+									Monday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Monday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Tuesday">
+									Tuesday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Tuesday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Wednesday">
+									Wednesday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Wednesday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Thursday">
+									Thursday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Thursday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Friday">
+									Friday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Friday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{ store.pk }}-Saturday">
+									Saturday
+								</a>
+							</div>
+						</div>	
+						<div id="{{ store.pk }}-Saturday" class="panel-collapse collapse">
+							<div class="panel-body">
+								{% for employee in store.employee_set.all %}
+								<div class="col-lg-4 col-md-6">
+									<div class="panel panel-primary ">
+										<div class="panel-heading">
+											<!-- <div class="huge">{{ employee.user.username }}</div> -->
+											<div class="large">
+												{{ employee.user.first_name }} {{ employee.user.last_name }}
+											</div>
+										</div>
+										<a href="/app">
+											<div class="panel-footer">
+												<span class="pull-left">View Details</span>
+												<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+												<div class="clearfix"></div>
+											</div>
+										</a>
+									</div>
+								</div>
+								{% endfor %}
+							
+							</div>
+						</div>
+					</div>
+
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

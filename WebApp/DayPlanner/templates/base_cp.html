@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block wrapper%}
+<div id="wrapper">
+
+    <!-- Navigation -->
+    {% include 'includes/navigation.html' %}
+
+    <!-- Contene -->
+    <div id="page-wrapper">
+        {% block main_content %}
+        {% endblock %}
+    </div>
+
+</div>
+{% endblock %}

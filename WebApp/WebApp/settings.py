@@ -154,3 +154,8 @@ MESSAGE_TAGS = {
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/app/'
+
+
+# https://stackoverflow.com/questions/26741213/set-input-to-am-pm-in-django-timefield
+# TIME_INPUT_FORMATS = ['%H:%M %p']
+    # CSRF_COOKIE_SECURE = True

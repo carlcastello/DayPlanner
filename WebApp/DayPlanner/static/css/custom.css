@@ -1,6 +1,26 @@
+.height-restrict {
+	height: 141px;
+}
+
+.halfwidth {
+	width: 50%;
+}
+
+.align-bottom.fullwidth {
+	left: 4px;
+	right: 4px;
+}
+
+.add-user {
+	font-size: 5em !important;
+	color: #999999;
+	margin-top: .5em;
+}
+
+.display-none,
 #createUserModal .modal-body .form-group:first-child,
 #createUserModal .modal-body .form-group:nth-child(2){
-	display: none;
+	display: none !important;
 }
 
 .schedule {
@@ -12,7 +32,6 @@
 
 .panel-title-with-buttons {
 	vertical-align: -webkit-baseline-middle;
-	/*vertical-align: middle;*/
 }
 
 .form-inline .form-control {
@@ -20,7 +39,7 @@
 }
 
 
-.btn-fullwidth {
+.fullwidth {
 	width: 100%;
 }
 
@@ -42,7 +61,7 @@
 	text-align: center;	
 }
 
-#schedule-table td .form-group:first-child{
+#schedule-table td .form-group{
 	margin-bottom: 4px;
 }
 #schedule-table td .form-group:last-child{

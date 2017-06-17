@@ -1,7 +1,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm 
+from django.contrib.auth.forms import UserCreationForm
 
 from .models import TimeClock, Store, Franchise, Employee, Manager
 
@@ -58,27 +58,13 @@ class UserForm(UserCreationForm):
             pass
             
 
-    # def clean_username(self):
-    #     pass
-    # def clean(self):
-    #     cleaned_data = super(UserForm, self).clean()
-    # def clean_username(self, username):
-    #     return username
-        # try:
-        #     User.objects.get(username__iexact=username)
-        # except user_model.DoesNotExist:
-        #     User.objects.get(username__iexact=username)
 
-        # widgets = {
-        #     'password1': forms.Textarea(
-        #         attrs={
-        #             "data-minlength":8
-        #         }
-        #     ),
-        #     'password2': forms.Textarea(
-        #         attrs={
-        #             "data-match":"#inputPassword",
-        #             "data-match-error":"Whoops, these don't match"
-        #         }
-        #     ),
-        # }
+
+class ScheduleForm(forms.Form):
+    startTime = forms.DateField()
+    endTime = forms.DateField()
+    class Meta:
+        fields = (
+            "startTime",
+            "endTime"
+        )

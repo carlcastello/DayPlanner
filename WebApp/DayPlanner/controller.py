@@ -22,11 +22,11 @@ class WeekCalendar:
     def formatWeek(self):
         weekDict = {0:"Monday",1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Friday",5:"Saturday",6:"Sunday"}
         currentWeek = self.getFullWeek(self.currentDate)
-        finishedWeek = []
-        for day in currentWeek: 
-            stringDate = self.formatday(day)
-            finishedWeek.append((day,weekDict[day.weekday()],stringDate))
-        return finishedWeek
+        # finishedWeek = []
+        # for day in currentWeek: 
+        #     stringDate = self.formatday(day)
+        #     finishedWeek.append((day,weekDict[day.weekday()],stringDate))
+        return currentWeek
         
     def getNextWeek(self):
         return str(self.nextWeekDate.year) + "-" + str(self.nextWeekDate.month) + "-" + str(self.nextWeekDate.day)

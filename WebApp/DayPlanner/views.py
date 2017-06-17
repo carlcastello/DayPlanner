@@ -56,32 +56,34 @@ class HomeView(TemplateView):
 
         return context
 
-class RegisteredUsersView(FormView):
+class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
-    success_url = reverse_lazy("DayPlanner:registered_users")
-    form_class = UserForm
+    success_url = "DayPlanner:registered_users"
+    # form_class = UserForm
 
-    def form_valid(self, form):  
-        context = super(RegisteredUsersView, self).form_valid(form)
-        form.save()
-        messages.success(self.request, 'User is succesfully created!')
-        return context
+    # def form_valid(self, form):  
+    #     context = super(RegisteredUsersView, self).form_valid(form)
+    #     form.save()
+    #     messages.success(self.request, 'User is succesfully created!')
+    #     return context
 
-    def form_invalid(self, form):
-        context = super(RegisteredUsersView, self).form_invalid(form)
-        for field in form:
-            for error in field.errors:
-                messages.error(self.request,error)
-        return context
+    # def form_invalid(self, form):
+    #     context = super(RegisteredUsersView, self).form_invalid(form)
+    #     for field in form:
+    #         for error in field.errors:
+    #             messages.error(self.request,error)
+    #     return context
+
+    method_decorator(csrf_protect)
+    def post(self, request, *args, **kwargs):
+        pass
     
     def get_context_data(self, **kwargs):
         context = super(RegisteredUsersView, self).get_context_data(**kwargs)
-        # groups = Group.objects.all()
         
         user = self.request.user
         franchise = Manager.objects.get(user = user).franchise
 
-        # Backwar referencing of foriegn key in django
         managers = franchise.manager_set.all()
         stores = franchise.store_set.all()
 
@@ -95,12 +97,10 @@ class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
     delete_url = "DayPlanner:registered_users"
     modify_url = "DayPlanner:user_detail_view"
-    # def get(self, request, *args, **kwargs):
-    #     pass
+   
     method_decorator(csrf_protect)
     def post(self,request,*args, **kwargs):
         user = User.objects.get(pk = kwargs["pk"])
-
 
         # print request.POST.get("confirm-user-delete")
         if request.POST.get("confirm-user-delete"):
@@ -120,22 +120,15 @@ class DetailUserView(TemplateView):
 
         return Http404("Form does not exist")
 
-
-
     def get_context_data(self, **kwargs):
         context = super(DetailUserView, self).get_context_data(**kwargs)
 
         user = User.objects.get(pk = kwargs["pk"])
-        account = None
-        
-        try:
-            account = Manager.objects.get(user=user)
-        except ObjectDoesNotExist:
-            account = Employee.objects.get(user=user)
-        except Exception as e:
-            raise e
+        # account = None
 
-        context["account"] = account
+        profile = Profile.objects.get(user=user)
+        
+        context["profile"] = profile
 
         return context
 

@@ -10,7 +10,7 @@
 {% block main_content %}
 <div class="row">
 	<div class="col-lg-12">
-		<h1 class="page-header">{{ account.user.first_name }} {{ account.user.last_name }}</h1>
+		<h1 class="page-header">{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
 	</div>
 </div>
 
@@ -21,27 +21,27 @@
 				<i class="fa fa-user" aria-hidden="true"></i> User Profile
 			</div>
 			<div class="panel-body">
-				<strong>Username:</strong> {{ account.user.username }}
+				<strong>Username:</strong> {{ profile.user.username }}
 				<br>
-				<strong>Email: </strong> {{ account.user.email }}
+				<strong>Email: </strong> {{ profile.user.email }}
 				<br>
-				<strong>Address:</strong> {{ account.address }}
-				<br>
-				<br>
-				<strong>Cell Phone Number:</strong> {{ account.cellphone }}
-				<br>
-				<strong>Home Phone Number:</strong> {{ account.homephone }}
+				<strong>Address:</strong> {{ profile.address }}
 				<br>
 				<br>
-				<strong>Date Joined: </strong> {{ account.user.date_joined }}
+				<strong>Cell Phone Number:</strong> {{ profile.cellphone }}
 				<br>
-				<strong>Last Login: </strong> {{ account.user.last_login }}
+				<strong>Home Phone Number:</strong> {{ profile.homephone }}
+				<br>
+				<br>
+				<strong>Date Joined: </strong> {{ profile.user.date_joined }}
+				<br>
+				<strong>Last Login: </strong> {{ profile.user.last_login }}
 			</div>
 			<div class="panel-footer">
 				<div class="row">
 					<div class="col-lg-12 text-right">
-						<a class="btn btn-warning" id ="modify-article" href="#">Modify Account</a>
-				        <a class="btn btn-danger" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == account.user.pk %} disabled {% endif %} >Delete Account</a>
+						<a class="btn btn-warning" id ="modify-article" href="#">Modify profile</a>
+				        <a class="btn btn-danger" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == profile.user.pk %} disabled {% endif %} >Delete profile</a>
 					</div>
 				</div>
 			</div>

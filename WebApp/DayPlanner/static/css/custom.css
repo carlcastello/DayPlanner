@@ -17,9 +17,7 @@
 	margin-top: .5em;
 }
 
-.display-none,
-#createUserModal .modal-body .form-group:first-child,
-#createUserModal .modal-body .form-group:nth-child(2){
+.display-none{
 	display: none !important;
 }
 

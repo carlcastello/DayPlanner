@@ -13,7 +13,7 @@ urlpatterns = [
 	# url(r'^users/delete-user/(?P<pk>\d+)/$', views.DeleteUserView.as_view(), name = 'delete_users' ),
 
 	url(r'^users/create-store/(?P<store_name>[A-Za-z0-9 ]+)/(?P<store_address>[A-Za-z0-9 ]+)/$', views.CreateStoreView.as_view(), name = 'create_store' ),
-	url(r'^users/delete-store/(?P<pk>[0-9a-f-]+)/$', views.DeleteStoreView.as_view(), name = 'delete_store' ),
+	# url(r'^users/delete-store/(?P<pk>[0-9a-f-]+)/$', views.DeleteStoreView.as_view(), name = 'delete_store' ),
 
     url(r'^planner/$', views.SchedulePlannerView.as_view(), name = 'schedule_planner' ),
     url(r'^planner/(?P<date>[0-9-]+)/$', views.SchedulePlannerView.as_view(), name = 'schedule_planner' ),

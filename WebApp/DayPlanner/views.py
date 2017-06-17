@@ -109,24 +109,13 @@ class DetailUserView(TemplateView):
             first_name = user.first_name
             last_name = user.last_name
             
-
             profile = Profile.objects.get(user=user)
             profile.delete()
-            # try:
-            #     account = Manager.objects.get(user=user)
-            #     account.delete()
-            # except ObjectDoesNotExist:
-            #     account = Employee.objects.get(user=user)
-            #     account.delete()
-            # except Exception as e:
-            #     raise e
 
             messages.success(request, first_name + " " + last_name + " is succesfully deleted!")
-            print "HELLO"
             return redirect(self.delete_url)
 
         elif request.POST.get("modify-user-info"):
-            print("Modify")
             return redirect(self.modify_url,user.pk)
 
         return Http404("Form does not exist")
@@ -150,18 +139,6 @@ class DetailUserView(TemplateView):
 
         return context
 
-
-
-class DeleteUserView(DeleteView):
-    model = User
-    success_url = reverse_lazy("DayPlanner:registered_users")
-    def get(self, request, *args, **kwargs):
-        user = User.objects.get(pk = kwargs["pk"])
-        first_name = user.first_name
-        last_name = user.last_name
-        messages.success(request, first_name + " " + last_name + " is succesfully deleted!")
-        return self.post(request, *args, **kwargs)
-
 class CreateStoreView(View):
     success_url = reverse_lazy("DayPlanner:registered_users")
 
@@ -182,7 +159,6 @@ class CreateStoreView(View):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
-
 class DeleteStoreView(DeleteView):
     model = Store
     success_url = reverse_lazy("DayPlanner:registered_users")
@@ -200,49 +176,59 @@ class DeleteStoreView(DeleteView):
 
         return self.post(request, *args, **kwargs)
  
-
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
     success_url = "DayPlanner:schedule_planner"
 
+    method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
+        # Get input from post
         employeeId = request.POST.get("employee-id")
         employee = Employee.objects.get(id=employeeId)
-
-
-        # print request.POST
-        scheduleId = request.POST.get("schedule-id")
+        
         scheduleDate = request.POST.get("schedule-date")
 
         startingTime = request.POST.get("from").encode("utf-8")
         endTime = request.POST.get("to").encode("utf-8")
 
-        # Added security for blank input
-        if startingTime != "" and endTime != "":
-            startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
-            endTime = datetime.strptime(endTime, '%I:%M %p').time()
-        else:
-            return redirect(self.success_url)
+        schedule = None
 
-        print(request.POST)
-        schedule = DaySchedule.objects.filter(date = scheduleDate,employee = employee)
-        # Employee is scheduled
-        if schedule:
-            schedule.update(
-                startingTime = startingTime,
-                endTime = endTime,
-                lastModified = datetime.now()
-            )
+        # SOLVED!!!!!!
+        # Doesn't work if multiple post at the same date is created 
+        # Todo Fix when multiple post is created
+        # Problem: 
+        # if two post are created with inputs that are a copy of each other, 
+        # both post will create a model that are exactly the same
+        try:
+            schedule = DaySchedule.objects.filter(date = scheduleDate,employee = employee)
+        except ObjectDoesNotExist:
+            if startingTime != "" and endTime != "":
+                startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
+                endTime = datetime.strptime(endTime, '%I:%M %p').time()
+                DaySchedule.objects.create(
+                    employee = employee,
+                    date = scheduleDate,
+                    startingTime = startingTime,
+                    endTime = endTime,
+                    lastModified = datetime.now()
+                )
+        except Exception as e:
+            raise e
         else:
-            # If employee isn't scheduled
-             DaySchedule.objects.create(
-                employee = employee,
-                date = scheduleDate,
-                startingTime = startingTime,
-                endTime = endTime,
-                lastModified = datetime.now()
-            )
-
+            # modify or delete
+            # schedule = DaySchedule.objects.get(date = scheduleDate,employee = employee)
+            # print(schedule.id)
+            if startingTime != "" and endTime != "" and schedule:
+                startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
+                endTime = datetime.strptime(endTime, '%I:%M %p').time()
+                schedule.update(
+                    startingTime = startingTime,
+                    endTime = endTime,
+                    lastModified = datetime.now()
+                )
+            else:
+                schedule.delete()
+        
         return redirect(self.success_url)
 
     def get_context_data(self, **kwargs):
@@ -297,7 +283,7 @@ class SchedulePlannerView(TemplateView):
                 for day in week:
                     dayScedule = {}
                     try:
-                        dayScedule[day] = employee.dayschedule_set.get(date=day)
+                        dayScedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
                     except ObjectDoesNotExist:
                         dayScedule[day] = None
                     weekSchedule.append(dayScedule)

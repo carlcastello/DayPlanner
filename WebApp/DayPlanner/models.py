@@ -130,6 +130,10 @@ class DaySchedule(models.Model):
         default = None
     )
 
+    class Meta:
+        unique_together = ("employee", "date")
+
+
 
 @receiver(post_delete, sender=Profile)
 def post_delete_user(sender, instance, *args, **kwargs):

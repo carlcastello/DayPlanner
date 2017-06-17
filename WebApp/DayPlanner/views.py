@@ -15,7 +15,7 @@ from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule,
 
 from django.utils.safestring import mark_safe
 from .controller import WeekCalendar
-from .forms import UserForm, ScheduleForm
+from .forms import UserForm, StoreForm
 
 from datetime import date, datetime
 
@@ -59,24 +59,59 @@ class HomeView(TemplateView):
 class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
     success_url = "DayPlanner:registered_users"
-    # form_class = UserForm
-
-    # def form_valid(self, form):  
-    #     context = super(RegisteredUsersView, self).form_valid(form)
-    #     form.save()
-    #     messages.success(self.request, 'User is succesfully created!')
-    #     return context
-
-    # def form_invalid(self, form):
-    #     context = super(RegisteredUsersView, self).form_invalid(form)
-    #     for field in form:
-    #         for error in field.errors:
-    #             messages.error(self.request,error)
-    #     return context
+    form_class = UserForm
 
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
-        pass
+        
+        if request.POST.get("createUser"):
+            form = UserForm(request.POST)
+            if form.is_valid():
+                string = request.POST.get("username")
+                self.form_valid(form,string)
+            else:
+                self.form_invalid(form)
+
+        elif request.POST.get("createStore"):
+            franchise = Manager.objects.get(user = request.user).franchise.id
+
+            formArguments = {
+                "name" : request.POST.get("name"),
+                "location" : request.POST.get("location"),
+                "franchise" : franchise
+            }
+            form = StoreForm(formArguments)
+            if form.is_valid():
+                string = request.POST.get("name") + " - " + request.POST.get("location")
+                self.form_valid(form,string)
+            else:
+                self.form_invalid(form)
+
+        elif request.POST.get("deleteStore"):
+            store = Store.objects.get(id = request.POST.get("storeid"))
+        
+            messages.success(request, store.name + " " + " is succesfully deleted!")
+ 
+            for employee in store.employee_set.all():
+                user = employee.user
+                first_name = user.first_name
+                last_name = user.last_name
+                messages.success(request, first_name + " " + last_name + " is deleted!")
+            store.delete()
+        else:
+            raise Http404("Form does not exist")
+        return redirect(self.success_url)
+
+
+    def form_valid(self,form,username):
+        form.save()
+        messages.success(self.request, username + " " +"is succesfully created!")
+
+    def form_invalid(self, form):
+        for field in form:
+            for error in field.errors:
+                messages.error(self.request,field.label + ": " + error)
+        return True
     
     def get_context_data(self, **kwargs):
         context = super(RegisteredUsersView, self).get_context_data(**kwargs)
@@ -103,7 +138,7 @@ class DetailUserView(TemplateView):
         user = User.objects.get(pk = kwargs["pk"])
 
         # print request.POST.get("confirm-user-delete")
-        if request.POST.get("confirm-user-delete"):
+        if request.POST.get("deleteUser"):
             account = None
             
             first_name = user.first_name
@@ -112,13 +147,13 @@ class DetailUserView(TemplateView):
             profile = Profile.objects.get(user=user)
             profile.delete()
 
-            messages.success(request, first_name + " " + last_name + " is succesfully deleted!")
+            messages.success(request, first_name + " " + last_name + " is deleted!")
             return redirect(self.delete_url)
 
-        elif request.POST.get("modify-user-info"):
+        elif request.POST.get("modifyUser"):
             return redirect(self.modify_url,user.pk)
 
-        return Http404("Form does not exist")
+        raise Http404("Form does not exist")
 
     def get_context_data(self, **kwargs):
         context = super(DetailUserView, self).get_context_data(**kwargs)
@@ -132,43 +167,6 @@ class DetailUserView(TemplateView):
 
         return context
 
-class CreateStoreView(View):
-    success_url = reverse_lazy("DayPlanner:registered_users")
-
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        franchise = Manager.objects.get(user = user).franchise
-        name = kwargs["store_name"]
-        storeAddress = kwargs["store_address"]
-
-        store = Store(franchise=franchise,name=name,address=storeAddress)
-        if store:
-            store.save()
-            messages.success(request, store.name + " " + store.address + " is succesfully deleted!")
-        else:
-            messages.danger(request, "Something went Wrong!!")
-        return HttpResponseRedirect(self.success_url)
-
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
-
-class DeleteStoreView(DeleteView):
-    model = Store
-    success_url = reverse_lazy("DayPlanner:registered_users")
-
-    def get(self, request, *args, **kwargs):
-        store = Store.objects.get(id = kwargs["pk"])
-        messages.success(request, store.name + " " + " is succesfully deleted!")
-        
-        # print(store.employee_set)
-        for employee in store.employee_set.all():
-            user = employee.user
-            first_name = user.first_name
-            last_name = user.last_name
-            messages.success(request, first_name + " " + last_name + " is deleted!")
-
-        return self.post(request, *args, **kwargs)
- 
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
     success_url = "DayPlanner:schedule_planner"
@@ -192,9 +190,10 @@ class SchedulePlannerView(TemplateView):
         # Problem: 
         # if two post are created with inputs that are a copy of each other, 
         # both post will create a model that are exactly the same
-        try:
-            schedule = DaySchedule.objects.filter(date = scheduleDate,employee = employee)
-        except ObjectDoesNotExist:
+        # try:
+        schedule = DaySchedule.objects.filter(date = scheduleDate,employee = employee)
+        if not schedule:
+            # print("Empty")
             if startingTime != "" and endTime != "":
                 startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
                 endTime = datetime.strptime(endTime, '%I:%M %p').time()
@@ -205,8 +204,6 @@ class SchedulePlannerView(TemplateView):
                     endTime = endTime,
                     lastModified = datetime.now()
                 )
-        except Exception as e:
-            raise e
         else:
             # modify or delete
             # schedule = DaySchedule.objects.get(date = scheduleDate,employee = employee)

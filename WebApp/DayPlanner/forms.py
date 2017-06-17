@@ -6,11 +6,11 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import TimeClock, Store, Franchise, Employee, Manager
 
 class UserForm(UserCreationForm):
-    objectValue = forms.CharField(
+    userType = forms.CharField(
         required = True,  
         max_length = 100
     )
-    objectId = forms.CharField(
+    typeID= forms.CharField(
         required = True, 
         max_length=100
     )
@@ -23,8 +23,8 @@ class UserForm(UserCreationForm):
     class Meta:
         model = User
         fields = (
-            "objectValue",
-            "objectId",
+            "userType",
+            "typeID",
             "username",
             "firstname",
             "lastname",
@@ -40,15 +40,15 @@ class UserForm(UserCreationForm):
         if commit:
             user.save()
 
-        if self.cleaned_data["objectValue"] == "store":
-            id = self.cleaned_data["objectId"]
+        if self.cleaned_data["userType"] == "store":
+            id = self.cleaned_data["typeID"]
             store = Store.objects.get(id = id)
             Employee.objects.create(
                 user = user,
                 store = store
             )
-        elif self.cleaned_data["objectValue"] == "manager":
-            id = self.cleaned_data["objectId"]
+        elif self.cleaned_data["userType"] == "manager":
+            id = self.cleaned_data["typeID"]
             franchise = Franchise.objects.get(id = id)
             Manager.objects.create(
                 user = user,
@@ -57,14 +57,19 @@ class UserForm(UserCreationForm):
         else:
             pass
             
-
-
-
-class ScheduleForm(forms.Form):
-    startTime = forms.DateField()
-    endTime = forms.DateField()
+class StoreForm(forms.ModelForm):
+    name = forms.CharField(
+        required = True,
+        max_length = 100
+    )
+    location = forms.CharField(
+        required = True,
+        max_length = 100
+    )
     class Meta:
+        model = Store
         fields = (
-            "startTime",
-            "endTime"
+            "franchise",
+            "name",
+            "location"
         )

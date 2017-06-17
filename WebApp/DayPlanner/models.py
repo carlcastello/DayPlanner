@@ -61,7 +61,7 @@ class Store(models.Model):
     name = models.CharField(        
         max_length=100
     )
-    address = models.CharField(
+    location = models.CharField(
         max_length=100
     )
     franchise = models.ForeignKey(
@@ -70,7 +70,7 @@ class Store(models.Model):
     )
 
     def __str__(self):              
-        return self.name + " " + self.address
+        return self.name + " " + self.location
  
 class Manager(Profile):
     franchise = models.ForeignKey(

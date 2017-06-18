@@ -14,6 +14,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # Create your models here.
 
+
+
 class Profile(models.Model):
     user = models.OneToOneField(
         User, 
@@ -21,13 +23,16 @@ class Profile(models.Model):
     )
 
     address = models.CharField(
-        max_length=100
+        max_length=100,
+        blank=True
     )
-    cellphone = models.CharField(
-        max_length=12
+    cellnumber = models.CharField(
+        max_length=12,
+        blank=True
     )
-    homephone = models.CharField(
-        max_length=12
+    homenumber = models.CharField(
+        max_length=12,
+        blank=True
     )
 
     def __str__(self):              

@@ -15,7 +15,7 @@ from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule,
 
 from django.utils.safestring import mark_safe
 from .controller import WeekCalendar
-from .forms import UserForm, StoreForm
+from .forms import UserForm, StoreForm, UpdateProfile
 
 from datetime import date, datetime
 
@@ -151,9 +151,34 @@ class DetailUserView(TemplateView):
             return redirect(self.delete_url)
 
         elif request.POST.get("modifyUser"):
+            # print "Hello"
+            form = UpdateProfile(request.POST, instance=user)
+            if form.is_valid():
+                form.save()
+                # print "Hello"
+                self.form_valid(form)
+                # print "Valid"
+            else:
+                self.form_invalid(form)
+                # print "Invalid"
+
+
+
             return redirect(self.modify_url,user.pk)
 
         raise Http404("Form does not exist")
+
+    def form_valid(self,form):
+        # form.save()?
+        messages.success(self.request, "Updated")
+
+    def form_invalid(self, form):
+        for field in form:
+            for error in field.errors:
+                messages.error(self.request,field.label + ": " + error)
+        return True
+    
+
 
     def get_context_data(self, **kwargs):
         context = super(DetailUserView, self).get_context_data(**kwargs)

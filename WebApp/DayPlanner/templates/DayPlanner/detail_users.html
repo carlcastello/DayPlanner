@@ -10,9 +10,18 @@
 {% block main_content %}
 <div class="row">
 	<div class="col-lg-12">
-		<h1 class="page-header">{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+		<h1 class="page-header"><span id="firstnameText">{{ profile.user.first_name }}</span> <span id="lastnameText">{{ profile.user.last_name }}</span></h1>
 	</div>
 </div>
+
+{% if messages %}
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible">
+			{{ message }}
+		</div>
+	{% endfor %}
+{% endif %}
+
 
 <div class="row">
 	<div class="col-lg-6">
@@ -23,16 +32,16 @@
 						<i class="fa fa-user" aria-hidden="true"></i> User Profile
 					</div>
 					<div class="panel-body">
-						<strong>Username:</strong> <span id="username"> {{ profile.user.username }} </span>
+						<strong>Username:</strong> <span id="usernameText">{{ profile.user.username }}</span>
 						<br>
-						<strong>Email: </strong> <span id="email" > {{ profile.user.email }} </span>
+						<strong>Email: </strong> <span id="emailText" >{{ profile.user.email }}</span>
 						<br>
-						<strong>Address:</strong> <span id="address"> {{ profile.address }} </span>
+						<strong>Address:</strong> <span id="addressText">{{ profile.address }}</span>
 						<br>
 						<br>
-						<strong>Cell Phone Number:</strong> <span id="cellnumber"> {{ profile.cellphone }} </span>
+						<strong>Cell Phone Number:</strong> <span id="cellnumberText">{{ profile.cellnumber }}</span>
 						<br>
-						<strong>Home Phone Number:</strong> <span id="homenumber"> {{ profile.homephone }} </span>
+						<strong>Home Phone Number:</strong> <span id="homenumberText">{{ profile.homenumber }}</span>
 						<br>
 						<br>
 						<strong>Date Joined: </strong> {{ profile.user.date_joined }}
@@ -42,7 +51,7 @@
 					<div class="panel-footer">
 						<div class="row">
 							<div class="col-lg-12 text-right">
-								<a class="btn btn-warning" id ="modify-article" href="#modifyUserModal" data-toggle="modal">Modify Profile</a>
+								<a class="btn btn-warning" id ="modify-user" href="#modifyUserModal" data-toggle="modal">Modify Profile</a>
 						        <a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == profile.user.pk %} disabled {% endif %}>Delete profile</a>
 							</div>
 						</div>
@@ -122,19 +131,11 @@
 			<form data-toggle="validator" role="form" method="post">
 				{% csrf_token %}
 				<div class="modal-body">
-					<div class="form-group has-feedback display-none">
-						<label class="control-label"">User Type</label>
-						<input type="text" name="userType" class="form-control" id="userType">
-					</div>
-					<div class="form-group has-feedback display-none">
-						<label class="control-label"">Type ID</label>
-						<input type="text" name="typeID" class="form-control" id="typeID">
-					</div>
 					<div class="form-group has-feedback">
 						<label class="control-label">Login Information</label>
 						<div class="row">
 							<div class="form-group col-sm-12 has-feedback">
-								<input type="text" name="username" class="form-control" placeholder="Username">
+								<input type="text" id="username" name="username" class="form-control" placeholder="Username">
 							</div>
 						</div>
 						<div class="form-inline row">
@@ -151,27 +152,27 @@
 						<label class="control-label">Basic Information</label>
 						<div class="row">
 							<div class="form-group col-sm-6 has-feedback">
-								<input type="text" name="firstname" class="form-control" placeholder="First Name">					
+								<input type="text" id="firstname" name="firstname" class="form-control" placeholder="First Name">					
 							</div>
 							<div class="form-group col-sm-6 has-feedback">					
-								<input type="text" name="lastname" class="form-control" placeholder="Last Name">
+								<input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last Name">
 							</div>
 						</div>
 
 						<div class="row">
 							<div class="form-group col-sm-12 has-feedback">
-								<input type="text" name="address" class="form-control" placeholder="Address">
+								<input type="text" id="address" name="address" class="form-control" placeholder="Address">
 							</div>
 						</div>	
 						<div class="row">					
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="email" name="email" class="form-control" placeholder="Email">
+								<input type="email" id="email" name="email" class="form-control" placeholder="Email">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="cellNumber" name="email" class="form-control" placeholder="Cell Number" pattern="[0-9- ]+">
+								<input type="cellNumber" id="cellnumber" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9-+ ]+">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="homeNumber" name="email" class="form-control" placeholder="Home Number" pattern="[0-9- ]+">
+								<input type="homeNumber" id="homenumber" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9-+ ]+">
 							</div>
 						</div>
 					</div>
@@ -194,8 +195,38 @@
 <script src="{% static 'js/validator.js' %}"></script>
 
 <script type="text/javascript">
-	
+	// This will load the value once clicked
+$(document).on("click", "#modify-user", function () {
+	var username = $("#usernameText").text();
+	var firstname = $("#firstnameText").text();
+	var lastname = $("#lastnameText").text();
+	var address = $("#addressText").text();
+	var email = $("#emailText").text();
+	var cellnumber = $("#cellnumberText").text();
+	var homenumber = $("#homenumberText").text();
+
+	$("#username").val(username);
+	$("#firstname").val(firstname);
+	$("#lastname").val(lastname);
+	$("#address").val(address);
+	$("#email").val(email);
+	$("#cellnumber").val(cellnumber);
+	$("#homenumber").val(homenumber);
+
+	// console.log(username);
+});
 </script>
+
+<script type="text/javascript">
+$(".createmodal").on("hidden.bs.modal", function (event) {
+	// $(this).find("input,textarea,select").val('').end();
+	$(".form-group").removeClass("has-error");
+	$(".form-group").removeClass("has-danger");
+	$(".form-group").removeClass("has-success");
+	console.log("hello")
+})
+</script>
+
 <!-- <script>
 // https://stackoverflow.com/questions/16144018/how-to-get-the-specific-form-field-value-using-jquery
 $(function() {

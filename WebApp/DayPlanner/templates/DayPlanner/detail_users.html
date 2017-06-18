@@ -5,12 +5,21 @@
 
 {% block title %}Registered Users{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+
+<!-- DataTables CSS -->
+<link href="{% static 'css/dataTables.bootstrap.css' %}" rel="stylesheet">
+<link href="{% static 'css/dataTables.responsive.css' %}" rel="stylesheet">
+
+{% endblock %}
 
 {% block main_content %}
 <div class="row">
 	<div class="col-lg-12">
-		<h1 class="page-header"><span id="firstnameText">{{ profile.user.first_name }}</span> <span id="lastnameText">{{ profile.user.last_name }}</span></h1>
+		<h1 class="page-header">
+			<span id="firstnameText">{{ profile.user.first_name }}</span> 
+			<span id="lastnameText">{{ profile.user.last_name }}</span>
+		</h1>
 	</div>
 </div>
 
@@ -29,7 +38,9 @@
 			<div class="col-lg-12">
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<i class="fa fa-user" aria-hidden="true"></i> User Profile
+						<span class="panel-title">
+							<i class="fa fa-user" aria-hidden="true"></i> User Profile
+						</span>
 					</div>
 					<div class="panel-body">
 						<strong>Username:</strong> <span id="usernameText">{{ profile.user.username }}</span>
@@ -39,9 +50,9 @@
 						<strong>Address:</strong> <span id="addressText">{{ profile.address }}</span>
 						<br>
 						<br>
-						<strong>Cell Phone Number:</strong> <span id="cellnumberText">{{ profile.cellnumber }}</span>
+						<strong>Cell:</strong> <span id="cellnumberText">{{ profile.cellnumber }}</span>
 						<br>
-						<strong>Home Phone Number:</strong> <span id="homenumberText">{{ profile.homenumber }}</span>
+						<strong>Home:</strong> <span id="homenumberText">{{ profile.homenumber }}</span>
 						<br>
 						<br>
 						<strong>Date Joined: </strong> {{ profile.user.date_joined }}
@@ -51,33 +62,73 @@
 					<div class="panel-footer">
 						<div class="row">
 							<div class="col-lg-12 text-right">
-								<a class="btn btn-warning" id ="modify-user" href="#modifyUserModal" data-toggle="modal">Modify Profile</a>
-						        <a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == profile.user.pk %} disabled {% endif %}>Delete profile</a>
+								<a class="btn btn-warning" id ="modify-user" href="#modifyUserModal" data-toggle="modal">
+								<i class="fa fa-pencil" aria-hidden="true"></i> Edit Profile
+								</a>
+								<a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == profile.user.pk %} disabled {% endif %}> 
+								<i class="fa fa-trash" aria-hidden="true"></i> 
+								Delete Profile
+								</a>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<i class="fa fa-hospital-o" aria-hidden="true"></i> Emergency Contact
-					</div>
-					<div class="panel-body">
-						<strong>Username:</strong> <span id="emergencycontact"> {{ profile.user.username }} </span>
-						<br>
-						<!-- <br>
-						<br> -->
-						<strong>Date Joined: </strong> {{ profile.user.date_joined }}
-						<br>
-						<strong>Last Login: </strong> {{ profile.user.last_login }}
-					</div>
-					<div class="panel-footer">
-						<div class="row">
-							<div class="col-lg-12 text-right">
-								<a class="btn btn-warning" id ="userModify" href="#">Modify Emergency Account</a>
-						        <!-- <a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" >Delete profile</a> -->
-							</div>
+						<div class="row"> 
+						<div class="col-xs-6">
+							<span class="panel-title panel-title-with-buttons"> 
+								<i class="fa fa-hospital-o" aria-hidden="true"></i> Emergency Contact
+							</span>
+						</div>
+						<div class="col-xs-6 text-right">
+							<a class="btn btn-user-create btn-success" data-toggle="modal" href="#createContactModal">
+								<i class="fa fa-plus" aria-hidden="true"></i>
+								Add Contact
+							</a>
+						</div>
 						</div>
 					</div>
+					<div class="panel-body">
+						<div class="row">
+							{% for contact in profile.emergencycontact_set.all %}
+							<div class="col-lg-6">
+								<div class="panel panel-default">
+									<div class="panel-body">
+										<strong>Name:</strong> 
+										<span id="contactfirstnameText">{{ contact.firstname }}</span>
+										<span id="contactlastnameText">{{ contact.lastname }}</span>
+										<br>
+										<strong>Relationship:</strong>
+										<span id="contactrelationText">{{ contact.relationship }}</span>
+										<br>
+										<strong>Cell Phone:</strong>
+										<span id="contactfcellnumberText">{{ contact.cellnumber }}</span>
+										<br>
+										<strong>Home Phone:</strong>
+										<span id="contactfcellnumberText">{{ contact.homenumber }}</span>
+									</div>
+									<div class="panel-footer text-right">
+										<a href="#editContactModal" data-toggle="modal" data-id="{{ contact.id }}" data-lastname="{{ contact.lastname }}" data-firstname="{{ contact.firstname }}" data-relationship="{{ contact.relationship }}" data-cellnumber="{{ contact.cellnumber }}" data-homenumber="{{ contact.homenumber }}" class="btn btn-warning" name="editContact" id="editContact" >
+											<i class="fa fa-pencil" aria-hidden="true"></i>
+										</a>
+										<a href="#deleteContactModal" data-toggle="modal" data-id="{{ contact.id }}" class="btn btn-danger" name="deleteContact" id="deletecontact">
+											<i class="fa fa-trash" aria-hidden="true"></i> 
+										</a>				
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+<!-- 					<div class="panel-footer">
+						<div class="row">
+							<div class="col-lg-12 text-right">
+								<a class="btn btn-warning" id ="userModify" href="#">Edit</a>
+								<a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" >Delete profile</a>
+							</div>
+						</div>
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -85,12 +136,152 @@
 	<div class="col-lg-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<i class="fa fa-history" aria-hidden="true"></i> Last Activity
+				<span class="panel-title">
+					<i class="fa fa-history" aria-hidden="true"></i> Last Activity
+				</span>
+			</div>
+			<div class="panel-body">
+				<table width="100%" class="table table-striped table-bordered table-hover" id="dataTables">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for result in results %}
+						<tr class="gradeA">
+							<td>{{ result.article.id }}</td>
+							<td>{{ result.article.name }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
 </div>
 
+
+<div class="modal fade" id="createContactModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Create Contact</h4>
+			</div>
+			<form data-toggle="validator" role="form" method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<div class="form-group has-feedback">
+						<label class="control-label">Basic Information</label>
+						<div class="row">
+							<div class="form-group col-sm-6 has-feedback">
+								<input type="text" id="contactfirstname" name="firstname" class="form-control" placeholder="First Name" required>					
+							</div>
+							<div class="form-group col-sm-6 has-feedback">					
+								<input type="text" id="contactlastname" name="lastname" class="form-control" placeholder="Last Name" required>
+							</div>
+						</div>
+						<div class="row">					
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="text" id="contactrelationship" name="relationship" class="form-control" placeholder="Relationship" required>
+							</div>
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="cellNumber" id="contactcellnumber" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9-+ ]+" required>
+							</div>
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="homeNumber" id="contacthomenumber" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9-+ ]+" required>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="form-group">
+						<button type="submit" class="btn btn-success" value="true" name="createContact">Submit</button>
+						<button class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="editContactModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Modify Contact</h4>
+			</div>
+			<form data-toggle="validator" role="form" method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<div class="form-group has-feedback">
+						<label class="control-label">Basic Information</label>
+						<div class="row">
+							<div class="form-group col-sm-6 has-feedback">
+								<input type="text" id="editcontactfirstname" name="firstname" class="form-control" placeholder="First Name" required>					
+							</div>
+							<div class="form-group col-sm-6 has-feedback">					
+								<input type="text" id="editcontactlastname" name="lastname" class="form-control" placeholder="Last Name" required>
+							</div>
+						</div>
+						<div class="row">					
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="text" id="editcontactrelationship" name="relationship" class="form-control" placeholder="Relationship" required>
+							</div>
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="cellNumber" id="editcontactcellnumber" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9-+ ]+" required>
+							</div>
+							<div class="form-group col-sm-4 has-feedback">
+								<input type="homeNumber" id="editcontacthomenumber" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9-+ ]+" required>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="form-group">
+						<input class="display-none" type="text" name="contactIDModify" id="editcontactID" required>
+						<button type="submit" class="btn btn-success" value="true" name="editContact">Submit</button>
+						<button class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteContactModal" role="dialog">
+	<div class="modal-dialog">
+		  <!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Delete Emergency Contact</h4>
+			</div>
+			<div class="modal-body">
+				<div class="text-center">
+					<h2>
+						Are you sure you want to delete this Contact Information?
+					</h2>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group">
+					<form role="form" method="post">
+						{% csrf_token %}
+						<input class="display-none" type="text" name="contactidDelete" id="contactIDDelete" required>
+						<button class="btn btn-danger" name="deleteContact" value="true" type="submit" >Delete</button>
+						<button class="btn btn-default" data-dismiss="modal">Close</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <div class="modal fade" id="deleteUserModal" role="dialog">
 	<div class="modal-dialog">
@@ -194,6 +385,43 @@
 
 <script src="{% static 'js/validator.js' %}"></script>
 
+<!-- Data Table JS -->
+<script src = "{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src ="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+<script src ="{% static 'js/dataTables.responsive.js' %}"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#dataTables").DataTable();
+});
+</script>
+
+<script type="text/javascript">
+$(document).on("click", "#editContact", function () {
+	var contactid = $(this).data("id");
+	var firstname = $(this).data("firstname");
+	var lastname = $(this).data("lastname");
+	var relationship = $(this).data("relationship");
+	var phonenumber = $(this).data("cellnumber");
+	var homenumber = $(this).data("homenumber");
+
+	$("#editcontactfirstname").val(firstname);
+	$("#editcontactlastname").val(lastname);
+	$("#editcontactcellnumber").val(phonenumber);
+	$("#editcontacthomenumber").val(homenumber);
+	$("#editcontactrelationship").val(relationship);	
+	$("#editcontactID").val(contactid);
+});
+</script>
+
+<script type="text/javascript">
+$(document).on("click", "#deletecontact", function () {
+	var contactid = $(this).data("id");
+	console.log(contactid);
+	$("#contactIDDelete").val(contactid);
+});
+</script>
+
 <script type="text/javascript">
 	// This will load the value once clicked
 $(document).on("click", "#modify-user", function () {
@@ -218,39 +446,14 @@ $(document).on("click", "#modify-user", function () {
 </script>
 
 <script type="text/javascript">
-$(".createmodal").on("hidden.bs.modal", function (event) {
+$(".modal").on("hidden.bs.modal", function (event) {
 	// $(this).find("input,textarea,select").val('').end();
 	$(".form-group").removeClass("has-error");
 	$(".form-group").removeClass("has-danger");
 	$(".form-group").removeClass("has-success");
-	console.log("hello")
+	// console.log("hello")
 })
 </script>
-
-<!-- <script>
-// https://stackoverflow.com/questions/16144018/how-to-get-the-specific-form-field-value-using-jquery
-$(function() {
-	$('form').on('submit', function(event) { //use on if jQuery 1.7+
-		event.preventDefault();
-		// https://stackoverflow.com/questions/38526573/django-make-a-post-request-on-form-submit-without-reloading-the-page-or-renderi
-		var form = $(this);
-		var string = form.serialize();
-		var posting = $.post(form.attr('action'),form.serialize());
-		// console.log(string);
-		posting.done(function(data) {
-            // success actions, maybe change submit button to 'friend added' or whatever
-            // console.log("Success")
-            window.location.replace("/app/users");
-        });
-        // if failure:
-        posting.fail(function(data) {
-            // 4xx or 5xx response, alert user about failure
-            console.log("Error")
-        });
-		return false;
-	});
-});
-</script> -->
 
 <script type="text/javascript">
 $(function() {

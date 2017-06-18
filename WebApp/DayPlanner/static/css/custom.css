@@ -1,3 +1,7 @@
+/*.panel-footer .btn {
+	width: 150px !important;
+}*/
+
 .height-restrict {
 	height: 141px;
 }
@@ -32,7 +36,7 @@
 	vertical-align: -webkit-baseline-middle;
 }
 
-.form-inline .form-control {
+.modal .form-inline .form-control {
 	width: 100% !important;
 }
 

@@ -14,8 +14,6 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # Create your models here.
 
-
-
 class Profile(models.Model):
     user = models.OneToOneField(
         User, 
@@ -43,6 +41,29 @@ class Profile(models.Model):
         self.user.delete()
         # return super(self.__class__, self).delete(*args, **kwargs)
 
+class EmergencyContact(models.Model):
+    firstname = models.CharField(
+        max_length=100
+    )
+    lastname = models.CharField(
+        max_length=100
+    )
+    cellnumber = models.CharField(
+        max_length=12,
+        blank=True
+    )
+    relationship = models.CharField(
+        max_length=12,
+        blank=True
+    )
+    homenumber = models.CharField(
+        max_length=12,
+        blank=True
+    )
+    profile = models.ForeignKey(
+        Profile,
+        on_delete = models.CASCADE
+    )
 
 class Franchise(models.Model):
     id = models.UUIDField(

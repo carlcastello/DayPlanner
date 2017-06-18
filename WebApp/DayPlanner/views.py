@@ -161,16 +161,25 @@ class DetailUserView(TemplateView):
             else:
                 self.form_invalid(form)
                 # print "Invalid"
-
-
-
             return redirect(self.modify_url,user.pk)
+
+        elif request.POST.get("createContact"):
+            print("Create Contact")
+            return redirect(self.modify_url,user.pk)
+
+        elif request.POST.get("editContact"):
+            print("Edit Contact")
+            return redirect(self.modify_url,user.pk)
+        elif request.POST.get("deleteContact"):
+            print("Delete Contact")
+            return redirect(self.modify_url,user.pk)
+            # pass
 
         raise Http404("Form does not exist")
 
     def form_valid(self,form):
-        # form.save()?
-        messages.success(self.request, "Updated")
+        message = form.save()
+        messages.success(self.request,messages)
 
     def form_invalid(self, form):
         for field in form:

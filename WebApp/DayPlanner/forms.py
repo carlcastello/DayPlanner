@@ -164,7 +164,7 @@ class UpdateProfile(forms.ModelForm):
             user.save()
             profile.save()
 
-        return user
+        return "Succesfully updated a user profile."
         # pass
 #     # class Meta:
 #     #     model = User

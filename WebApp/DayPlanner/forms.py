@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import TimeClock, Store, Franchise, Employee, Manager, Profile
+from .models import TimeClock, Store, Franchise, Employee, Manager, Profile, EmergencyContact
 
 class UserForm(UserCreationForm):
     userType = forms.CharField(
@@ -15,10 +15,12 @@ class UserForm(UserCreationForm):
         max_length=100
     )
     firstname = forms.CharField(
-        required = True
+        required = True,
+        max_length=100
     )
     lastname = forms.CharField(
-        required = True
+        required = True,
+        max_length=100
     )
     class Meta:
         model = User
@@ -74,25 +76,28 @@ class StoreForm(forms.ModelForm):
             "location"
         )
 
-
 class UpdateProfile(forms.ModelForm):
     username = forms.CharField()
     firstname = forms.CharField()
     lastname = forms.CharField()
     email = forms.EmailField(
-        required = False
+        required = False,
+        max_length=100
     )
     address = forms.CharField(
-        required = False
+        required = False,
+        max_length=100
     )
     homenumber = forms.CharField(
-        required = False
+        required = False,
+        max_length=12
     )
     cellnumber = forms.CharField(
-        required = False
+        required = False,
+        max_length=12
     )
     password = forms.CharField(
-        required = False
+        required = False,
     )
     
     class Meta:
@@ -164,25 +169,102 @@ class UpdateProfile(forms.ModelForm):
             user.save()
             profile.save()
 
-        return "Succesfully updated a user profile."
-        # pass
-#     # class Meta:
-#     #     model = User
-#     #     fields = ('username', 'email', 'first_name', 'last_name')
+        return user
 
-#     # def clean_email(self):
-#     #     username = self.cleaned_data.get('username')
-#     #     email = self.cleaned_data.get('email')
+class EmergencyContactForm(forms.ModelForm):
+    firstname = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    lastname = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    relationship = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    homenumber = forms.CharField(
+        required = False,
+        max_length=12
+    )
+    cellnumber = forms.CharField(
+        required = False,
+        max_length=12
+    )
+    class Meta:
+        model = EmergencyContact
+        fields = (
+            "profile" ,
+            "firstname",
+            "lastname",
+            "relationship",
+            "homenumber",
+            "cellnumber",
+        )
 
-#     #     if email and User.objects.filter(email=email).exclude(username=username).count():
-#     #         raise forms.ValidationError('This email address is already in use. Please supply a different email address.')
-#     #     return email
+class UpdatEmergencyContactForm(forms.ModelForm):
+    firstname = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    lastname = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    relationship = forms.CharField(
+        max_length = 100,
+        required = True
+    )
+    homenumber = forms.CharField(
+        required = False,
+        max_length=12
+    )
+    cellnumber = forms.CharField(
+        required = False,
+        max_length=12
+    )
 
-#     # def save(self, commit=True):
-#     #     user = super(RegistrationForm, self).save(commit=False)
-#     #     user.email = self.cleaned_data['email']
+    class Meta:
+        model = EmergencyContact
+        fields = (
+            "firstname",
+            "lastname",
+            "relationship",
+            "homenumber",
+            "cellnumber",
+        )
 
-#     #     if commit:
-#     #         user.save()
+    def save(self, commit = True):
+        contact = self.instance
 
-#     #     return user
+        firstName = self.cleaned_data["firstname"]
+        if contact.firstname != firstName and firstName != "":
+            # print "Change Firstname"
+            contact.firstname = firstName
+            
+        lastName = self.cleaned_data["lastname"]
+        if contact.lastname != lastName and lastName != "":
+            # print "Change Firstname"
+            contact.lastname = lastName
+        
+        relationship = self.cleaned_data["relationship"] 
+        if contact.relationship != relationship and relationship != "":
+            # print "Change relationship"
+            contact.relationship = relationship
+
+        cellNumber = self.cleaned_data["cellnumber"] 
+        if contact.cellnumber != cellNumber and cellNumber != "":
+            # print "Change Cell Phone"
+            contact.cellnumber = cellNumber
+
+        homeNumber = self.cleaned_data["homenumber"] 
+        if contact.homenumber != homeNumber and homeNumber != "":
+            # print "Change Cell Phone"
+            contact.homenumber = homeNumber
+
+        if commit:  
+
+            contact.save()
+
+        return contact

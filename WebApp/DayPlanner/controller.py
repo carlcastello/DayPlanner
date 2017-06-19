@@ -45,7 +45,12 @@ class WeekCalendar:
         weekEnd = 6
 
         currentWeekDay = date.weekday()
+        print currentWeekDay
         pointer = currentWeekDay  + 1
+
+        # TODO fix sunday bug
+        # Calenday won't update if sunday
+
         while pointer > weekStart:
             daysBefore = date - timedelta(days=pointer)
             pointer -= 1
@@ -57,7 +62,8 @@ class WeekCalendar:
             daysAfter = date + timedelta(days=pointer)
             pointer += 1;
             week.append(daysAfter)
-
+        # print "--"
+        # print "week"
         return week
 
     def formatday(self,day):

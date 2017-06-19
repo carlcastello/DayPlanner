@@ -11,11 +11,11 @@ from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirec
 
 from django.contrib.auth.models import User, Group
 
-from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule, Profile
+from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule, Profile, EmergencyContact
 
 from django.utils.safestring import mark_safe
 from .controller import WeekCalendar
-from .forms import UserForm, StoreForm, UpdateProfile
+from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, UpdatEmergencyContactForm
 
 from datetime import date, datetime
 
@@ -138,8 +138,10 @@ class DetailUserView(TemplateView):
         user = User.objects.get(pk = kwargs["pk"])
 
         # print request.POST.get("confirm-user-delete")
+        # Hahahahahahahhahahahahah
+        # Refractor this please!!!
         if request.POST.get("deleteUser"):
-            account = None
+            # account = None
             
             first_name = user.first_name
             last_name = user.last_name
@@ -154,9 +156,8 @@ class DetailUserView(TemplateView):
             # print "Hello"
             form = UpdateProfile(request.POST, instance=user)
             if form.is_valid():
-                form.save()
-                # print "Hello"
-                self.form_valid(form)
+                message = "Successfully modified user profile"
+                self.form_valid(form,message)
                 # print "Valid"
             else:
                 self.form_invalid(form)
@@ -164,22 +165,56 @@ class DetailUserView(TemplateView):
             return redirect(self.modify_url,user.pk)
 
         elif request.POST.get("createContact"):
-            print("Create Contact")
+            # print("Create Contact")
+            formArguments = {
+                "firstname" : request.POST.get("firstname"),
+                "lastname" : request.POST.get("lastname"),
+                "relationship" : request.POST.get("relationship"),
+                "homenumber" : request.POST.get("homenumber"),
+                "cellnumber" : request.POST.get("cellnumber"),
+                "profile" : Profile.objects.get(user=user).id
+            }
+
+            form = EmergencyContactForm(formArguments)
+            if form.is_valid():
+                # form.save()
+                message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is created as emergency contact." 
+                self.form_valid(form,message)
+            else:
+                self.form_invalid(form)
             return redirect(self.modify_url,user.pk)
 
         elif request.POST.get("editContact"):
-            print("Edit Contact")
+            # print("Edit Contact")
+            # print request.POST.get("contactidEdit")/
+            emergencyContact = EmergencyContact.objects.get(id=request.POST.get("contactidEdit"))
+            form = UpdatEmergencyContactForm(request.POST, instance=emergencyContact)
+            if form.is_valid():
+                message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is updated as emergency contact." 
+                # messages.success(self.request,message)
+                self.form_valid(form,message)
+            else:
+                pass
+
             return redirect(self.modify_url,user.pk)
+
         elif request.POST.get("deleteContact"):
-            print("Delete Contact")
+            # print("Delete Contact")
+            emergencyContact = EmergencyContact.objects.get(id=request.POST.get("contactidDelete"))
+            
+            message = emergencyContact.firstname + " " + emergencyContact.lastname + " is deleted as emergency contact."
+            messages.success(self.request,message)
+            
+            emergencyContact.delete()
+        
             return redirect(self.modify_url,user.pk)
             # pass
 
         raise Http404("Form does not exist")
 
-    def form_valid(self,form):
-        message = form.save()
-        messages.success(self.request,messages)
+    def form_valid(self,form,message):
+        form.save()
+        messages.success(self.request,message)
 
     def form_invalid(self, form):
         for field in form:
@@ -286,6 +321,7 @@ class SchedulePlannerView(TemplateView):
 
         calendar = WeekCalendar(argDate)
         week = calendar.formatWeek()
+        print(week)
         lastWeek = calendar.getPreviousWeek()
         nextWeek = calendar.getNextWeek()
         # lastWeek, week, nextWeek = calendar.formatweek(year,month,day)

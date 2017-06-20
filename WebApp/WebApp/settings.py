@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'DayPlanner',
     'rest_framework',
-    'widget_tweaks'
+    'widget_tweaks',
+    'easy_pdf'
     # 'schedule',
     # 'djangobower',
 ]

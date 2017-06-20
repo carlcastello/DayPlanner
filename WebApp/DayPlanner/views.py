@@ -3,29 +3,25 @@ from __future__ import unicode_literals
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 
-from django.views.generic import View, TemplateView, DeleteView
-from django.views.generic.edit import FormView, CreateView
-# from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView
 
-from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirect, Http404
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 
 from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule, Profile, EmergencyContact
 
 from django.utils.safestring import mark_safe
+from datetime import date, datetime
 from .controller import WeekCalendar
 from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, UpdatEmergencyContactForm
-
-from datetime import date, datetime
-
-from django.urls import reverse_lazy
 
 from django.contrib import messages
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.http import Http404
+from django.conf import settings
+from easy_pdf.views import PDFTemplateView
 
 # Create your views here.
 class HomeView(TemplateView):
@@ -40,19 +36,19 @@ class HomeView(TemplateView):
         franchise = manager.franchise
         # Get count and the object of registered stores
         stores = franchise.store_set.all()
-        storeCount = stores.count()
+        store_count = stores.count()
        
         # timeClockCount = 0
         # Get employee count given a franchise
-        employeeCount  = 0
-        timeClockCount = 0
+        employee_count  = 0
+        time_clock_count = 0
         for store in stores:
-            employeeCount += store.employee_set.all().count()
-            timeClockCount += store.timeclock_set.all().count()
+            employee_count += store.employee_set.all().count()
+            time_clock_count += store.timeclock_set.all().count()
 
-        context['employeeCount'] = employeeCount
-        context['storeCount'] = storeCount
-        context['timeClockCount'] = timeClockCount
+        context['employeeCount'] = employee_count
+        context['storeCount'] = store_count
+        context['timeClockCount'] = time_clock_count
 
         return context
 
@@ -75,12 +71,12 @@ class RegisteredUsersView(TemplateView):
         elif request.POST.get("createStore"):
             franchise = Manager.objects.get(user = request.user).franchise.id
 
-            formArguments = {
+            form_arguments = {
                 "name" : request.POST.get("name"),
                 "location" : request.POST.get("location"),
                 "franchise" : franchise
             }
-            form = StoreForm(formArguments)
+            form = StoreForm(form_arguments)
             if form.is_valid():
                 string = request.POST.get("name") + " - " + request.POST.get("location")
                 self.form_valid(form,string)
@@ -90,7 +86,7 @@ class RegisteredUsersView(TemplateView):
         elif request.POST.get("deleteStore"):
             store = Store.objects.get(id = request.POST.get("storeid"))
         
-            messages.success(request, store.name + " " + " is succesfully deleted!")
+            messages.success(request, store.name + " " + " is successfully deleted!")
  
             for employee in store.employee_set.all():
                 user = employee.user
@@ -166,7 +162,7 @@ class DetailUserView(TemplateView):
 
         elif request.POST.get("createContact"):
             # print("Create Contact")
-            formArguments = {
+            form_arguments = {
                 "firstname" : request.POST.get("firstname"),
                 "lastname" : request.POST.get("lastname"),
                 "relationship" : request.POST.get("relationship"),
@@ -175,7 +171,7 @@ class DetailUserView(TemplateView):
                 "profile" : Profile.objects.get(user=user).id
             }
 
-            form = EmergencyContactForm(formArguments)
+            form = EmergencyContactForm(form_arguments)
             if form.is_valid():
                 # form.save()
                 message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is created as emergency contact." 
@@ -187,8 +183,8 @@ class DetailUserView(TemplateView):
         elif request.POST.get("editContact"):
             # print("Edit Contact")
             # print request.POST.get("contactidEdit")/
-            emergencyContact = EmergencyContact.objects.get(id=request.POST.get("contactidEdit"))
-            form = UpdatEmergencyContactForm(request.POST, instance=emergencyContact)
+            emergency_contact = EmergencyContact.objects.get(id=request.POST.get("contactidEdit"))
+            form = UpdatEmergencyContactForm(request.POST, instance=emergency_contact)
             if form.is_valid():
                 message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is updated as emergency contact." 
                 # messages.success(self.request,message)
@@ -200,12 +196,12 @@ class DetailUserView(TemplateView):
 
         elif request.POST.get("deleteContact"):
             # print("Delete Contact")
-            emergencyContact = EmergencyContact.objects.get(id=request.POST.get("contactidDelete"))
+            emergency_contact = EmergencyContact.objects.get(id=request.POST.get("contactidDelete"))
             
-            message = emergencyContact.firstname + " " + emergencyContact.lastname + " is deleted as emergency contact."
+            message = emergency_contact.firstname + " " + emergency_contact.lastname + " is deleted as emergency contact."
             messages.success(self.request,message)
             
-            emergencyContact.delete()
+            emergency_contact.delete()
         
             return redirect(self.modify_url,user.pk)
             # pass
@@ -239,56 +235,86 @@ class DetailUserView(TemplateView):
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
     success_url = "DayPlanner:schedule_planner"
+    pdf_url = "DayPlanner:schedule_pdf"
+
+    current_date = datetime.now().date()
 
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
+        if request.POST.get("export_to_pdf"):
+            # print "Hello"
+            arg_date = None
+            try:
+                arg_date = kwargs["date"]
+            except KeyError:
+                arg_date = str(self.current_date.year) + "-" + str(self.current_date.month) + "-" + str(self.current_date.day)
+
+            return redirect(self.pdf_url,arg_date)
+        else:
+            print "Boo"
+            self.handle_schedule(request)
+        return redirect(self.success_url)
+
+    def handle_schedule(self,request):
         # Get input from post
-        employeeId = request.POST.get("employee-id")
-        employee = Employee.objects.get(id=employeeId)
-        
-        scheduleDate = request.POST.get("schedule-date")
+        employee_id = request.POST.get("employee-id")
+        employee = Employee.objects.get(id=employee_id)
 
-        startingTime = request.POST.get("from").encode("utf-8")
-        endTime = request.POST.get("to").encode("utf-8")
+        schedule_date = request.POST.get("schedule-date")
 
-        schedule = None
+        starting_time = request.POST.get("from").encode("utf-8")
+        end_time = request.POST.get("to").encode("utf-8")
 
         # SOLVED!!!!!!
-        # Doesn't work if multiple post at the same date is created 
+        # Doesn't work if multiple post at the same date is created
         # Todo Fix when multiple post is created
-        # Problem: 
-        # if two post are created with inputs that are a copy of each other, 
+        # Problem:
+        # if two post are created with inputs that are a copy of each other,
         # both post will create a model that are exactly the same
         # try:
-        schedule = DaySchedule.objects.filter(date = scheduleDate,employee = employee)
+        schedule = DaySchedule.objects.filter(date=schedule_date, employee=employee)
         if not schedule:
             # print("Empty")
-            if startingTime != "" and endTime != "":
-                startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
-                endTime = datetime.strptime(endTime, '%I:%M %p').time()
+            if starting_time != "" and end_time != "":
+                starting_time = datetime.strptime(starting_time, '%I:%M %p').time()
+                end_time = datetime.strptime(end_time, '%I:%M %p').time()
                 DaySchedule.objects.create(
-                    employee = employee,
-                    date = scheduleDate,
-                    startingTime = startingTime,
-                    endTime = endTime,
-                    lastModified = datetime.now()
+                    employee=employee,
+                    date=schedule_date,
+                    startingTime=starting_time,
+                    endTime=end_time,
+                    lastModified=datetime.now()
                 )
         else:
             # modify or delete
             # schedule = DaySchedule.objects.get(date = scheduleDate,employee = employee)
             # print(schedule.id)
-            if startingTime != "" and endTime != "" and schedule:
-                startingTime = datetime.strptime(startingTime, '%I:%M %p').time()
-                endTime = datetime.strptime(endTime, '%I:%M %p').time()
+            if starting_time != "" and end_time != "" and schedule:
+                starting_time = datetime.strptime(starting_time, '%I:%M %p').time()
+                end_time = datetime.strptime(end_time, '%I:%M %p').time()
                 schedule.update(
-                    startingTime = startingTime,
-                    endTime = endTime,
-                    lastModified = datetime.now()
+                    startingTime=starting_time,
+                    endTime=end_time,
+                    lastModified=datetime.now()
                 )
             else:
                 schedule.delete()
-        
-        return redirect(self.success_url)
+
+    def handle_export(self,request):
+        paragraphs = ["first paragraph", "second paragraph", "third paragraph"]
+        html_string = render_to_string("DayPlanner/schedule.html", {"paragraphs": paragraphs})
+
+        html = HTML(string=html_string)
+
+        html.write_pdf(target="/tmp/mypdf.pdf");
+
+        fs = FileSystemStorage("/tmp")
+        with fs.open("mypdf.pdf") as pdf:
+            response = HttpResponse(pdf, content_type="application/pdf")
+            response["Content-Disposition"] = "attachment; filename='mypdf.pdf'"
+            return response
+
+        return response
 
     def get_context_data(self, **kwargs):
         context = super(SchedulePlannerView, self).get_context_data(**kwargs)
@@ -297,59 +323,66 @@ class SchedulePlannerView(TemplateView):
         franchise = Manager.objects.get(user = user).franchise
         stores = franchise.store_set.all()
 
-        currentDate = datetime.now().date()
+        arg_date = self.get_arg_date(kwargs)
+        is_before = self.get_is_before(arg_date)
 
-        argDate = None
+        calendar = WeekCalendar(arg_date)
+        week = calendar.formatWeek()
+        last_week = calendar.getPreviousWeek()
+        next_week = calendar.getNextWeek()
+
+        context['lastWeek'] = last_week
+        context['nextWeek'] = next_week
+        context['week'] = week
+        context['isBefore'] = is_before
+        context['stores'] = self.get_week_schedule(stores,week)
+        return context
+
+    def get_arg_date(self,kwargs):
+        arg_date = None
         try:
             urlDate = kwargs["date"].split("-")
             year = int(urlDate[0])
             month = int(urlDate[1])
             day = int(urlDate[2])
-            argDate = date(year,month,day)
-        
+            arg_date = date(year, month, day)
         except KeyError:
-            argDate = currentDate
-      
-        isBefore = False
-        if argDate < currentDate:
-            isBefore = True
+            arg_date = self.current_date
 
-        isPermitted = False
-        if user not in franchise.manager_set.all():
-            isPermitted = False
+        return arg_date
 
+    def get_is_before(self,arg_date):
+        if arg_date < self.current_date:
+            return True
+        return False
 
-        calendar = WeekCalendar(argDate)
-        week = calendar.formatWeek()
-        print(week)
-        lastWeek = calendar.getPreviousWeek()
-        nextWeek = calendar.getNextWeek()
-        # lastWeek, week, nextWeek = calendar.formatweek(year,month,day)
-
-        context['lastWeek'] = lastWeek
-        context['nextWeek'] = nextWeek
-        context['week'] = week
-        context['isBefore'] = isBefore
-        # context['isPermitted'] = isPermitted
-        context['stores'] = self.getWeekSchedule(stores,week)
-        return context
-
-    def getWeekSchedule(self,stores,week):
+    def get_week_schedule(self,stores,week):
         data = {}
         for store in stores:
             data[store] = {}
             for employee in store.employee_set.all():
-                weekSchedule = []
+                week_schedule = []
                 for day in week:
-                    dayScedule = {}
+                    day_scedule = {}
                     try:
-                        dayScedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
+                        day_scedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
                     except ObjectDoesNotExist:
-                        dayScedule[day] = None
-                    weekSchedule.append(dayScedule)
+                        day_scedule[day] = None
+                    week_schedule.append(day_scedule)
     
-                data[store][employee] = weekSchedule
+                data[store][employee] = week_schedule
         return data
+
+class SchedulePDFView(PDFTemplateView):
+    template_name = "EasyPDF/schedule.html"
+
+    # download_filename = "hello.pdf"
+    # pdf_filename =
+
+    def get_context_data(self, **kwargs):
+        context = super(SchedulePDFView, self).get_context_data(pagesize='A4',**kwargs)
+
+        return context
 
 class TimeClockView(TemplateView):
     def get(self,request):

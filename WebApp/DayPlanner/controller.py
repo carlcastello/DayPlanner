@@ -45,7 +45,7 @@ class WeekCalendar:
         weekEnd = 6
 
         currentWeekDay = date.weekday()
-        print currentWeekDay
+        # print currentWeekDay
         pointer = currentWeekDay  + 1
 
         # TODO fix sunday bug

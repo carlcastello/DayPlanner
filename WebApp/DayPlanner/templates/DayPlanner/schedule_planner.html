@@ -108,7 +108,7 @@
 								<td>
 									<div class="row">
 										<div class='col-lg-12'>
-										<form  role="form" method="post">
+										<form  role="form" method="post" class="schedule">
 											{% csrf_token %}
 											<div class="form-group display-none">
 												<input  class="form-group" name="employee-id" value="{{ employee.pk }}" {% if isBefore or isPermitted %} disabled {% endif %}>
@@ -146,9 +146,11 @@
 			<div class="panel-footer">
 				<div class="row">   
 					<div class="col-lg-12 text-right">
-						<a href="/app" class="btn btn-danger">Clear</a>
-						<a href="/app" class="btn btn-warning">Export as PDF</a>
-					</div>
+                        <form method="post" role="form">
+                            {% csrf_token %}
+						    <button class="btn btn-warning" value="True" name="export_to_pdf">Export as PDF</button>
+                        </form>
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -165,7 +167,7 @@
 <script>
 // https://stackoverflow.com/questions/16144018/how-to-get-the-specific-form-field-value-using-jquery
 $(function() {
-	$("form").focusout(function() {
+	$(".schedule").focusout(function() {
 		// var to=form.find("input[name=to]").val();
 		// var from=form.find("input[name=from]").val();
 		// https://stackoverflow.com/questions/38526573/django-make-a-post-request-on-form-submit-without-reloading-the-page-or-renderi
@@ -185,31 +187,6 @@ $(function() {
 		});
 
 	})
-
-	// $('form').on('submit', function(event) { //use on if jQuery 1.7+
-	// 	event.preventDefault();
-	// 	var form = $(this);
-	// 	var to=form.find("input[name=to]").val();
-	// 	var from=form.find("input[name=from]").val();
-
-	// 	console.log(to);
-	// 	console.log(from);
-	// 	// https://stackoverflow.com/questions/38526573/django-make-a-post-request-on-form-submit-without-reloading-the-page-or-renderi
-	// 	var form = $(this);
-	// 	var string = form.serialize();
-	// 	var posting = $.post(form.attr('action'),form.serialize());
-	// 	// console.log(string);
-	// 	posting.done(function(data) {
-	// 		// success actions, maybe change submit button to 'friend added' or whatever
-	// 		console.log("Success")
-	// 	});
-	// 	// if failure:
-	// 	posting.fail(function(data) {
-	// 		// 4xx or 5xx response, alert user about failure
-	// 		console.log("Error")
-	// 	});
-	// 	return false;
-	// });
 });
 </script>
 

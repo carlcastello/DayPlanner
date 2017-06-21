@@ -19,8 +19,7 @@ from django.contrib import admin
 from WebApp import views 
 
 urlpatterns = [
-	url(r'^$', views.Login_Redirect, name = 'LoginRedirect'), 
-	
+	url(r'^$', views.Login_Redirect, name = 'LoginRedirect'),
     url(r'^admin/', admin.site.urls),
     url(r'^app/', include('DayPlanner.urls', namespace = 'DayPlanner')),
 ]

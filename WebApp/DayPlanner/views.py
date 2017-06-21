@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 from django.views.generic import TemplateView
 
@@ -18,12 +19,12 @@ from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, Upd
 
 from django.contrib import messages
 
-from django.core.exceptions import ObjectDoesNotExist
+# from django.core.exceptions import ObjectDoesNotExist
 
 from django.conf import settings
 from easy_pdf.views import PDFTemplateView
 
-# Create your views here.
+@method_decorator(login_required, name='dispatch')
 class HomeView(TemplateView):
     template_name = "DayPlanner/home.html"
 
@@ -52,6 +53,8 @@ class HomeView(TemplateView):
 
         return context
 
+
+@method_decorator(login_required, name='dispatch')
 class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
     success_url = "DayPlanner:registered_users"
@@ -124,6 +127,8 @@ class RegisteredUsersView(TemplateView):
 
         return context
 
+
+@method_decorator(login_required, name='dispatch')
 class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
     delete_url = "DayPlanner:registered_users"
@@ -132,7 +137,6 @@ class DetailUserView(TemplateView):
     method_decorator(csrf_protect)
     def post(self,request,*args, **kwargs):
         user = User.objects.get(pk = kwargs["pk"])
-
         # print request.POST.get("confirm-user-delete")
         # Hahahahahahahhahahahahah
         # Refractor this please!!!
@@ -232,6 +236,8 @@ class DetailUserView(TemplateView):
 
         return context
 
+
+@method_decorator(login_required, name='dispatch')
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
     success_url = "DayPlanner:schedule_planner"
@@ -241,21 +247,21 @@ class SchedulePlannerView(TemplateView):
 
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
-        if request.POST.get("export_to_pdf"):
-            # print "Hello"
-            arg_date = None
+        if request.POST.get("export_to_pdf") is not None:
+            store = request.POST.get("export_to_pdf")
+            date = None
             try:
-                arg_date = kwargs["date"]
+                date = kwargs["date"]
             except KeyError:
-                arg_date = str(self.current_date.year) + "-" + str(self.current_date.month) + "-" + str(self.current_date.day)
+                date = str(self.current_date.year) + "-" + str(self.current_date.month) + "-" + str(self.current_date.day)
 
-            return redirect(self.pdf_url,arg_date)
+            return redirect(self.pdf_url,date,store)
         else:
-            print "Boo"
-            self.handle_schedule(request)
+            self.__handle_schedule(request)
+
         return redirect(self.success_url)
 
-    def handle_schedule(self,request):
+    def __handle_schedule(self,request):
         # Get input from post
         employee_id = request.POST.get("employee-id")
         employee = Employee.objects.get(id=employee_id)
@@ -300,7 +306,7 @@ class SchedulePlannerView(TemplateView):
             else:
                 schedule.delete()
 
-    def handle_export(self,request):
+    def __handle_export(self,request):
         paragraphs = ["first paragraph", "second paragraph", "third paragraph"]
         html_string = render_to_string("DayPlanner/schedule.html", {"paragraphs": paragraphs})
 
@@ -323,22 +329,22 @@ class SchedulePlannerView(TemplateView):
         franchise = Manager.objects.get(user = user).franchise
         stores = franchise.store_set.all()
 
-        arg_date = self.get_arg_date(kwargs)
-        is_before = self.get_is_before(arg_date)
+        date = self.__get_arg_date(kwargs)
+        is_before = self.__get_is_before(date)
 
-        calendar = WeekCalendar(arg_date)
-        week = calendar.formatWeek()
-        last_week = calendar.getPreviousWeek()
-        next_week = calendar.getNextWeek()
+        calendar = WeekCalendar(date)
+        week = calendar.get_week()
+        last_week = calendar.get_week_previous()
+        next_week = calendar.get_week_next()
 
         context['lastWeek'] = last_week
         context['nextWeek'] = next_week
         context['week'] = week
         context['isBefore'] = is_before
-        context['stores'] = self.get_week_schedule(stores,week)
+        context['stores'] = calendar.get_week_schedule(stores)
         return context
 
-    def get_arg_date(self,kwargs):
+    def __get_arg_date(self,kwargs):
         arg_date = None
         try:
             urlDate = kwargs["date"].split("-")
@@ -351,27 +357,27 @@ class SchedulePlannerView(TemplateView):
 
         return arg_date
 
-    def get_is_before(self,arg_date):
+    def __get_is_before(self,arg_date):
         if arg_date < self.current_date:
             return True
         return False
 
-    def get_week_schedule(self,stores,week):
-        data = {}
-        for store in stores:
-            data[store] = {}
-            for employee in store.employee_set.all():
-                week_schedule = []
-                for day in week:
-                    day_scedule = {}
-                    try:
-                        day_scedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
-                    except ObjectDoesNotExist:
-                        day_scedule[day] = None
-                    week_schedule.append(day_scedule)
-    
-                data[store][employee] = week_schedule
-        return data
+    # def get_week_schedule(self,stores,week):
+    #     data = {}
+    #     for store in stores:
+    #         data[store] = {}
+    #         for employee in store.employee_set.all():
+    #             week_schedule = []
+    #             for day in week:
+    #                 day_scedule = {}
+    #                 try:
+    #                     day_scedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
+    #                 except ObjectDoesNotExist:
+    #                     day_scedule[day] = None
+    #                 week_schedule.append(day_scedule)
+    #
+    #             data[store][employee] = week_schedule
+    #     return data
 
 class SchedulePDFView(PDFTemplateView):
     template_name = "EasyPDF/schedule.html"
@@ -382,8 +388,32 @@ class SchedulePDFView(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(SchedulePDFView, self).get_context_data(pagesize='A4',**kwargs)
 
+        date = self.__get_arg_date(kwargs)
+        store = Store.objects.get(id=kwargs["store"])
+
+        calendar = WeekCalendar(date)
+
+        context["title"] = calendar.get_week_span()
+        context["week"] = calendar.get_week()
+        context["stores"] = calendar.get_week_schedule(stores = [store])
+
         return context
 
+
+    def __get_arg_date(self,kwargs):
+        arg_date = None
+        try:
+            urlDate = kwargs["date"].split("-")
+            year = int(urlDate[0])
+            month = int(urlDate[1])
+            day = int(urlDate[2])
+            arg_date = date(year, month, day)
+        except KeyError:
+            arg_date = self.current_date
+
+        return arg_date
+
+@method_decorator(login_required, name='dispatch')
 class TimeClockView(TemplateView):
     def get(self,request):
         return HttpResponse("Time Clock")

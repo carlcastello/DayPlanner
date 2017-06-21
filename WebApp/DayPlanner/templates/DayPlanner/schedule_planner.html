@@ -54,7 +54,7 @@
 				</div>
 			</div>
 			<div class="panel-body collapse in" id="{{ store.pk }}">
-								{% csrf_token %}
+								<!--{% csrf_token %}-->
 				<table class="table table-condensed table-bordered" id="schedule-table">
 					<thead>
 						<tr>
@@ -148,7 +148,7 @@
 					<div class="col-lg-12 text-right">
                         <form method="post" role="form">
                             {% csrf_token %}
-						    <button class="btn btn-warning" value="True" name="export_to_pdf">Export as PDF</button>
+						    <button class="btn btn-warning" value="{{ store.id }}" name="export_to_pdf">Export as PDF</button>
                         </form>
                     </div>
 				</div>

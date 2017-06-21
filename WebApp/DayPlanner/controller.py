@@ -1,46 +1,63 @@
 # from calendar import HTMLCalendar
 import calendar
 from datetime import date, timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 class WeekCalendar:
 
     # self.calendar = None
     calendar = calendar.Calendar(calendar.SUNDAY)
 
+    week = []
     currentDate = None
     previousWeekDate = None
     nextWeekDate = None
     weekNumber = None
     
     def __init__(self,date):
+        self.week = []
         self.currentDate = date
         self.previousWeekDate = self.currentDate - timedelta(days=7)      
-        self.nextWeekDate = self.currentDate + timedelta(days=7)  
+        self.nextWeekDate = self.currentDate + timedelta(days=7)
+
+        self.__get_full_week(self.currentDate)
 
         year,self.weekNumber,DOW = self.currentDate.isocalendar()
 
-    def formatWeek(self):
-        weekDict = {0:"Monday",1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Friday",5:"Saturday",6:"Sunday"}
-        currentWeek = self.getFullWeek(self.currentDate)
-        # finishedWeek = []
-        # for day in currentWeek: 
-        #     stringDate = self.formatday(day)
-        #     finishedWeek.append((day,weekDict[day.weekday()],stringDate))
-        return currentWeek
-        
-    def getNextWeek(self):
+    def get_week(self):
+        return self.week
+
+    def get_week_span(self):
+        return "From:"+ str(self.week[0]) + "  To:" + str(self.week[6])
+
+    def get_week_next(self):
         return str(self.nextWeekDate.year) + "-" + str(self.nextWeekDate.month) + "-" + str(self.nextWeekDate.day)
 
-    def getPreviousWeek(self):
+    def get_week_previous(self):
         return str(self.previousWeekDate.year) + "-" + str(self.previousWeekDate.month) + "-" + str(self.previousWeekDate.day)
 
-    def getWeekNumber(self):
+    def get_week_number(self):
         return self.weekNumber
 
+    def get_week_schedule(self, stores):
+        data = {}
+        for store in stores:
+            data[store] = {}
+            for employee in store.employee_set.all():
+                week_schedule = []
+                for day in self.week:
+                    day_scedule = {}
+                    try:
+                        day_scedule[day] = employee.dayschedule_set.get(date=day, employee=employee)
+                    except ObjectDoesNotExist:
+                        day_scedule[day] = None
+                    week_schedule.append(day_scedule)
 
-    def getFullWeek(self,date):
-        week = []
-        
+                data[store][employee] = week_schedule
+        return data
+
+    def __get_full_week(self, date):
+
         weekStart = 0
         weekEnd = 6
 
@@ -54,23 +71,17 @@ class WeekCalendar:
         while pointer > weekStart:
             daysBefore = date - timedelta(days=pointer)
             pointer -= 1
-            week.append(daysBefore)
+            self.week.append(daysBefore)
 
         pointer = 0
         currentWeekDay = date.weekday()
         while pointer < weekEnd - currentWeekDay:
             daysAfter = date + timedelta(days=pointer)
             pointer += 1;
-            week.append(daysAfter)
+            self.week.append(daysAfter)
         # print "--"
         # print "week"
-        return week
+        # return self.week
 
-    def formatday(self,day):
-        monthDict={1:"January", 2:"Febuary", 3:"March", 4:"April", 5:"May", 6:"June", 7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"}
-        year = str(day.year)
-        month = monthDict[day.month]
-        currentDay = str(day.day)
-        stringDate = currentDay + " " + month + " " + year
+        print self.week
 
-        return stringDate

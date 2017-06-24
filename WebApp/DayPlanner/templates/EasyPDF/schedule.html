@@ -7,16 +7,16 @@
     <!--<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">-->
     <style>
 
-    table {
+    .table-bordered  {
         border: 1px solid #ddd;
     }
-    th,
-    td{
+    .table-bordered  th,
+    .table-bordered td{
         padding: 3px;
         vertical-align: top;
         border-top: 1px solid #ddd;
     }
-    th{
+    .table-bordered th{
         border-top: 0 !important;
         vertical-align: bottom;
         border-bottom: 2px solid #ddd;
@@ -28,6 +28,23 @@
 </head>
 
 <body>
+<table>
+    <thead>
+        <tr>
+            <th>
+                <span style="font-size: 15px;"> Store: <br> {{ store.id }} <br> </span>
+            </th>
+            <th>
+                <span style="font-size: 15px;"> {{ store.name }} <br> {{ store.location }} </span>
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+</table>
+<br>
+<br>
 {% for store, employees in stores.items %}
 <table class="table table-condensed table-bordered table-striped">
     <thead>

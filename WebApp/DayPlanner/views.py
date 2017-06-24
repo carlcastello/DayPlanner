@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.views.generic import TemplateView
 
-from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirect, Http404, get_object_or_404
 
 from django.contrib.auth.models import User
 
@@ -19,46 +19,152 @@ from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, Upd
 
 from django.contrib import messages
 
-# from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.conf import settings
 from easy_pdf.views import PDFTemplateView
 
 @method_decorator(login_required, name='dispatch')
 class HomeView(TemplateView):
-    template_name = "DayPlanner/home.html"
+    template_name = None
+    current_date = datetime.now().date()
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+
+        # Render template depending on a user instance
+        try:
+            Manager.objects.get(user=user)
+            self.template_name = "DayPlanner/home.html"
+        except ObjectDoesNotExist:
+            Employee.objects.get(user=user)
+            self.template_name = "DayViewer/home.html"
+        except:
+            raise HttpResponse(status=500)
+
+        response = super(HomeView, self).get(*args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         user = self.request.user
-        # manager = user.manager_set
-        manager = Manager.objects.get(user = user)
+
+        manager = None
+        employee = None
+        try:
+            manager = Manager.objects.get(user = user)
+        except ObjectDoesNotExist:
+            employee = Employee.objects.get(user=user)
+        except:
+            raise HttpResponse(status=500)
+
+        # This method creates a different view between employee and manager
+        if manager:
+            context = self.__if_manager(manager,context)
+        elif employee:
+            context = self.__if_employee(employee,context,**kwargs)
+        else:
+            raise HttpResponse(status=500)
+
+        return context
+
+    def __if_manager(self,manager,context):
+
         franchise = manager.franchise
         # Get count and the object of registered stores
         stores = franchise.store_set.all()
         store_count = stores.count()
-       
-        # timeClockCount = 0
+
         # Get employee count given a franchise
-        employee_count  = 0
+        employee_count = 0
         time_clock_count = 0
         for store in stores:
             employee_count += store.employee_set.all().count()
             time_clock_count += store.timeclock_set.all().count()
 
+        context["isManager"] = True
         context['employeeCount'] = employee_count
         context['storeCount'] = store_count
         context['timeClockCount'] = time_clock_count
 
         return context
 
+    def __if_employee(self,employee,context,**kwargs):
+        # context["name"] = "Apple"
+
+        date = self.__get_arg_date(kwargs)
+        store = employee.store
+
+        calendar = WeekCalendar(date)
+        week = calendar.get_week()
+        last_week = calendar.get_week_previous()
+        next_week = calendar.get_week_next()
+
+        context["lastWeek"] = last_week
+        context["nextWeek"] = next_week
+        context["week"] = week
+        context['stores'] = calendar.get_week_schedule([store])
+
+        return context
+
+    def __get_arg_date(self,kwargs):
+        arg_date = None
+        try:
+            urlDate = kwargs["date"].split("-")
+            year = int(urlDate[0])
+            month = int(urlDate[1])
+            day = int(urlDate[2])
+            arg_date = date(year, month, day)
+        except KeyError:
+            arg_date = self.current_date
+
+        return arg_date
+
+@method_decorator(login_required, name='dispatch')
+class ProfileView(TemplateView):
+    template_name = "DayViewer/profile.html"
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+
+        # Limit this view for only employees
+        try:
+            Employee.objects.get(user=user)
+        except ObjectDoesNotExist:
+            Manager.objects.get(user=user)
+            raise Http404
+        except:
+            raise HttpResponse(status=500)
+
+        response = super(ProfileView, self).get(*args, **kwargs)
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        user = get_object_or_404(User,pk=kwargs["pk"])
+        context["profile"] = Employee.objects.get(user=user)
+        return context
 
 @method_decorator(login_required, name='dispatch')
 class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
     success_url = "DayPlanner:registered_users"
     form_class = UserForm
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+
+        # Limit this view for only employees
+        try:
+            Manager.objects.get(user=user)
+        except ObjectDoesNotExist:
+            raise Http404
+        except:
+            raise HttpResponse(status=500)
+
+        response = super(RegisteredUsersView, self).get(*args, **kwargs)
+        return response
 
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
@@ -101,7 +207,6 @@ class RegisteredUsersView(TemplateView):
             raise Http404("Form does not exist")
         return redirect(self.success_url)
 
-
     def form_valid(self,form,username):
         form.save()
         messages.success(self.request, username + " " +"is succesfully created!")
@@ -120,7 +225,7 @@ class RegisteredUsersView(TemplateView):
 
         managers = franchise.manager_set.all()
         stores = franchise.store_set.all()
-
+        context["isManager"] = True
         context['franchise'] = franchise
         context['managers'] = managers
         context['stores'] = stores
@@ -133,7 +238,21 @@ class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
     delete_url = "DayPlanner:registered_users"
     modify_url = "DayPlanner:user_detail_view"
-   
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+
+        # Limit this view for only employees
+        try:
+            Manager.objects.get(user=user)
+        except ObjectDoesNotExist:
+            raise Http404
+        except:
+            raise HttpResponse(status=500)
+
+        response = super(DetailUserView, self).get(*args, **kwargs)
+        return response
+
     method_decorator(csrf_protect)
     def post(self,request,*args, **kwargs):
         user = User.objects.get(pk = kwargs["pk"])
@@ -231,7 +350,7 @@ class DetailUserView(TemplateView):
         # account = None
 
         profile = Profile.objects.get(user=user)
-        
+        context["isManager"] = True
         context["profile"] = profile
 
         return context
@@ -244,6 +363,20 @@ class SchedulePlannerView(TemplateView):
     pdf_url = "DayPlanner:schedule_pdf"
 
     current_date = datetime.now().date()
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+
+        # Limit this view for only employees
+        try:
+            Manager.objects.get(user=user)
+        except ObjectDoesNotExist:
+            raise Http404
+        except:
+            raise HttpResponse(status=500)
+
+        response = super(SchedulePlannerView, self).get(*args, **kwargs)
+        return response
 
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
@@ -337,6 +470,7 @@ class SchedulePlannerView(TemplateView):
         last_week = calendar.get_week_previous()
         next_week = calendar.get_week_next()
 
+        context["isManager"] = True
         context['lastWeek'] = last_week
         context['nextWeek'] = next_week
         context['week'] = week
@@ -393,6 +527,7 @@ class SchedulePDFView(PDFTemplateView):
 
         calendar = WeekCalendar(date)
 
+        context["store"] = store
         context["title"] = calendar.get_week_span()
         context["week"] = calendar.get_week()
         context["stores"] = calendar.get_week_schedule(stores = [store])

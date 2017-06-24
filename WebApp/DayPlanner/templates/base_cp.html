@@ -4,10 +4,13 @@
 <div id="wrapper">
 
     <!-- Navigation -->
-    {% include 'includes/navigation.html' %}
+    {% if isManager %}
+        {% include 'DayPlanner/navigation.html' %}
+    {% else %}
+        {% include 'DayViewer/navigation.html' %}
+    {% endif %}
 
-    <!-- Contene -->
-    <div id="page-wrapper">
+    <div id="page-wrapper" {% if not isManager %}  class="container" {% endif %} >
         {% block main_content %}
         {% endblock %}
     </div>

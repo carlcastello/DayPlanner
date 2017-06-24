@@ -1,0 +1,166 @@
+{% extends 'base_cp.html' %}
+
+
+{% load static %}
+{% block title %}Home{% endblock %}
+
+{% block css %}
+
+<!-- DataTables CSS -->
+<link href="{% static 'css/dataTables.bootstrap.css' %}" rel="stylesheet">
+<link href="{% static 'css/dataTables.responsive.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block main_content %}
+<div class="row">
+	<div class="col-lg-12">
+		<h1 class="page-header">
+			<span id="firstnameText">{{ profile.user.first_name }}</span>
+			<span id="lastnameText">{{ profile.user.last_name }}</span>
+		</h1>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-6">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<span class="panel-title">
+							<i class="fa fa-user" aria-hidden="true"></i> User Profile
+						</span>
+					</div>
+					<div class="panel-body">
+						<strong>Username:</strong> {{ profile.user.username }}
+						<br>
+						<strong>Email: </strong> {{ profile.user.email }}
+						<br>
+						<strong>Address:</strong> {{ profile.address }}
+						<br>
+						<br>
+						<strong>Cell:</strong> {{ profile.cellnumber }}
+						<br>
+						<strong>Home:</strong> {{ profile.homenumber }}
+						<br>
+						<br>
+						<strong>Date Joined: </strong> {{ profile.user.date_joined }}
+						<br>
+						<strong>Last Login: </strong> {{ profile.user.last_login }}
+					</div>
+					<!--<div class="panel-footer">-->
+						<!--<div class="row">-->
+							<!--<div class="col-lg-12 text-right">-->
+								<!--<a class="btn btn-warning" id ="modify-user" href="#modifyUserModal" data-toggle="modal">-->
+								<!--<i class="fa fa-pencil" aria-hidden="true"></i> Edit Profile-->
+								<!--</a>-->
+								<!--<a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" {% if request.user.pk == profile.user.pk %} disabled {% endif %}> -->
+								<!--<i class="fa fa-trash" aria-hidden="true"></i> -->
+								<!--Delete Profile-->
+								<!--</a>-->
+							<!--</div>-->
+						<!--</div>-->
+					<!--</div>-->
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<div class="row">
+						<div class="col-xs-6">
+							<span class="panel-title panel-title-with-buttons">
+								<i class="fa fa-hospital-o" aria-hidden="true"></i> Emergency Contact
+							</span>
+						</div>
+						<!--<div class="col-xs-6 text-right">-->
+							<!--<a class="btn btn-user-create btn-success" data-toggle="modal" href="#createContactModal">-->
+								<!--<i class="fa fa-plus" aria-hidden="true"></i>-->
+								<!--Add Contact-->
+							<!--</a>-->
+						<!--</div>-->
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+                            {% if profile.emergencycontact_set.all %}
+							{% for contact in profile.emergencycontact_set.all %}
+							<div class="col-lg-6">
+								<div class="panel panel-default">
+									<div class="panel-body">
+										<strong>Name:</strong>
+										<span>{{ contact.firstname }}</span>
+										<span>{{ contact.lastname }}</span>
+										<br>
+										<strong>Relationship:</strong>
+										<span>{{ contact.relationship }}</span>
+										<br>
+										<strong>Cell Phone:</strong>
+										<span>{{ contact.cellnumber }}</span>
+										<br>
+										<strong>Home Phone:</strong>
+										<span>{{ contact.homenumber }}</span>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+                            {% else %}
+                            <div class="col-lg-12">
+                                No Emergency Contact Registered
+                            </div>
+                            {% endif %}
+						</div>
+					</div>
+<!-- 					<div class="panel-footer">
+						<div class="row">
+							<div class="col-lg-12 text-right">
+								<a class="btn btn-warning" id ="userModify" href="#">Edit</a>
+								<a class="btn btn-danger {% if request.user.pk == profile.user.pk %} disabled {% endif %}" id="delete-article" href="#deleteUserModal" data-toggle="modal" >Delete profile</a>
+							</div>
+						</div>
+					</div> -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class="panel-title">
+					<i class="fa fa-history" aria-hidden="true"></i> Last Activity
+				</span>
+			</div>
+			<div class="panel-body">
+				<table width="100%" class="table table-striped table-bordered table-hover" id="dataTables">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for result in results %}
+						<tr class="gradeA">
+							<td>{{ result.article.id }}</td>
+							<td>{{ result.article.name }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<!-- Data Table JS -->
+<script src = "{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src ="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+<script src ="{% static 'js/dataTables.responsive.js' %}"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#dataTables").DataTable();
+});
+</script>
+{% endblock %}

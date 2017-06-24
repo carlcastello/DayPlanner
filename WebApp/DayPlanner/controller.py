@@ -83,5 +83,5 @@ class WeekCalendar:
         # print "week"
         # return self.week
 
-        print self.week
+        # print self.week
 

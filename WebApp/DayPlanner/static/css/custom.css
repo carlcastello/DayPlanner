@@ -1,6 +1,9 @@
 /*.panel-footer .btn {
 	width: 150px !important;
 }*/
+.login-panel {
+    margin-top: 25%;
+}
 
 .height-restrict {
 	height: 141px;

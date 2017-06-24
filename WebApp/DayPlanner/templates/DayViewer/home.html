@@ -1,0 +1,160 @@
+{% extends 'base_cp.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            Welcome to Day Viewer, {{ request.user.first_name }}!
+        </h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+					<div class="col-xs-6">
+						<span class="panel-title panel-title-with-buttons">
+						Request Schedule
+						</span>
+					</div>
+				</div>
+            </div>
+            <form method="post" role="form">
+                {% csrf_token %}
+			<div class="panel-body">
+
+            </div>
+            <div class="panel-footer">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button class="btn btn-success" type="submit" name="submit" disabled>Submit</button>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+					<div class="col-xs-6">
+						<span class="panel-title panel-title-with-buttons">
+						Work Schedule
+						</span>
+					</div>
+					<div class="col-xs-6 text-right">
+						<a href="{% url 'DayPlanner:home' lastWeek %}" class="btn btn-success">
+							<i class="fa fa-arrow-left" aria-hidden="true"></i>
+							Last Week
+						</a>
+						<a href="{% url 'DayPlanner:home' %}" class="btn btn-warning">
+							Now
+						</a>
+						<a href="{% url 'DayPlanner:home' nextWeek %}" class="btn btn-success">
+							Next Week
+							<i class="fa fa-arrow-right" aria-hidden="true"></i>
+						</a>
+					</div>
+				</div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-condensed table-bordered" id="schedule-table">
+					<thead>
+						<tr>
+							<th>
+
+							</th>
+							{% for day in week %}
+							<th>
+								<div class="row">
+									<div class="col-lg-12">
+										{% if day.weekday is 6 %}
+											Sunday
+										{% elif day.weekday is 0 %}
+									 		Monday
+										{% elif day.weekday is 1 %}
+											Tuesday
+										{% elif day.weekday is 2 %}
+											Wednesday
+										{% elif day.weekday is 3 %}
+											Thursday
+										{% elif day.weekday is 4 %}
+											Friday
+										{% elif day.weekday is 5 %}
+											Saturday
+										{% endif %}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										{{ day }}
+										<!-- <a href="" class="btn btn-success fullwidth"> Save</a> -->
+									</div>
+								</div>
+							</th>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+                        {% for store, employees in stores.items %}
+                        {% for employee, week in employees.items %}
+                        <tr>
+							<td class="relative {% if request.user.pk == employee.user.pk %} alert-info {% endif %}">
+								<div class="row">
+									<div class="col-lg-12">
+                                        {% if request.user.pk == employee.user.pk %} <strong> {% endif %}
+										{{ employee.user.first_name }} {{ employee.user.last_name }}
+                                        {% if request.user.pk == employee.user.pk %} </strong> {% endif %}
+									</div>
+								</div>
+								<br>
+							</td>
+							{% for schedule in week %}
+								{% for date, day in schedule.items %}
+								<td class="{% if request.user.pk == employee.user.pk %} alert-info {% endif %}">
+									<div class="row">
+										<div class='col-lg-12'>
+											<div class="form-group">
+												<div class="input-group date">
+													<input type="text" class="form-control" name="from"  disabled placeholder="N/A" {% if day %} value="{{ day.startingTime }}" {% endif %}/>
+													<!--<span class="input-group-addon">-->
+														<!--<i class="fa fa-clock-o" aria-hidden="true"></i>-->
+													<!--</span>-->
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="input-group date">
+													<input type="text" class="form-control" name="to" disabled placeholder="N/A" {% if day %} value="{{ day.endTime }}" {% endif %}/>
+													<!--<span class="input-group-addon">-->
+														<!--<i class="fa fa-clock-o" aria-hidden="true"></i>-->
+													<!--</span>-->
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+								{% endfor %}
+							{% endfor %}
+						</tr>
+                        {% endfor %}
+                        {% endfor %}
+					</tbody>
+				</table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

@@ -31,9 +31,6 @@
 .schedule {
 	width: 100%;
 }
-.schedule-header th {
-	width: 12.5%
-}
 
 .panel-title-with-buttons {
 	vertical-align: -webkit-baseline-middle;
@@ -62,7 +59,7 @@
 }
 
 #schedule-table th{
-	width: 12.5%;
+	min-width: 135px;
 	text-align: center;	
 }
 

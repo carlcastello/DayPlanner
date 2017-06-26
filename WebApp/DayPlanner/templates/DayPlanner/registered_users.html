@@ -44,19 +44,19 @@
 			<div class="panel-body">
 				{% for manager in managers %}
 				<div class="col-lg-6 col-md-6">
-					<div class="panel {% if request.user.pk != manager.user.pk %} panel-primary {% else %} panel-green {% endif %}">
+					<div class="panel {% if request.user.pk != manager.profile.user.pk %} panel-primary {% else %} panel-green {% endif %}">
 						<div class="panel-heading">
 							<div class="row">
 								<div class="col-xs-3">
 									<i class="fa fa-user fa-5x"></i>
 								</div>
 								<div class="col-xs-9 text-right">
-									<div class="huge">{{ manager.user.username }}</div>
-									<div>{{ manager.user.first_name }} {{ manager.user.last_name }}</div>
+									<div class="huge">{{ manager.profile.user.username }}</div>
+									<div>{{ manager.profile.user.first_name }} {{ manager.profile.user.last_name }}</div>
 								</div>
 							</div>
 						</div>
-						<a href="{% url 'DayPlanner:user_detail_view' manager.user.pk %}">
+						<a href="{% url 'DayPlanner:user_detail_view' manager.profile.user.pk %}">
 							<div class="panel-footer">
 								<span class="pull-left">View Details</span>
 								<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -111,7 +111,7 @@
 			<div class="panel-body collapse" id="{{ store.pk }}">
 				{% for employee in store.employee_set.all %}
 				<!-- <div class="panel-group col-lg-6 col-md-6" id="accordion"> -->
-				<div class="col-lg-4 col-md-4">
+				<div class="col-lg-4 col-md-6">
 					<div class="panel panel-primary">
 						<div class="panel-heading">
 							<div class="row">
@@ -119,12 +119,12 @@
 									<i class="fa fa-user fa-5x"></i>
 								</div>
 								<div class="col-xs-9 text-right">
-									<div class="huge">{{ employee.user.username }}</div>
-									<div>{{ employee.user.first_name }} {{ employee.user.last_name }}</div>
+									<div class="huge">{{ employee.profile.user.username }}</div>
+									<div>{{ employee.profile.user.first_name }} {{ employee.profile.user.last_name }}</div>
 								</div>
 							</div>
 						</div>	
-						<a href="{% url 'DayPlanner:user_detail_view' employee.user.pk %}">
+						<a href="{% url 'DayPlanner:user_detail_view' employee.profile.user.pk %}">
 							<div class="panel-footer">
 								<span class="pull-left">View Details</span>
 								<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -242,11 +242,15 @@
 			<div class="modal-body">
 					{% csrf_token %}
 				<div class="form-group has-feedback">
-					<label for="inputUsername" class="control-label">Store Name</label>
+					<label class="control-label">Store Id</label>
+					<input type="number" class="form-control" name="number" min="0" required>
+				</div>
+				<div class="form-group has-feedback">
+					<label class="control-label">Store Name</label>
 					<input type="text" class="form-control" pattern="[A-Za-z0-9 ]+" name="name" required>
 				</div>
 				<div class="form-group has-feedback">
-					<label for="inputUsername" class="control-label">Store Location</label>
+					<label class="control-label">Store Location</label>
 					<input type="text" class="form-control" pattern="[A-Za-z0-9 ]+" name="location" required>
 				</div>
 			</div>

@@ -3,7 +3,11 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import TimeClock, Store, Franchise, Employee, Manager, Profile, EmergencyContact
+from simple_history.utils import update_change_reason
+
+from datetime import datetime
+
+from .models import TimeClock, Store, Franchise, Employee, Manager, Profile, EmergencyContact, Request
 
 class UserForm(UserCreationForm):
     userType = forms.CharField(
@@ -39,30 +43,44 @@ class UserForm(UserCreationForm):
         user.first_name = self.cleaned_data["firstname"]
         user.last_name = self.cleaned_data["lastname"]
 
+
         if commit:
             user.save()
+
+        profile = Profile.objects.create(
+            user=user
+        )
+        update_change_reason(profile, "User is created.")
+
+        # print profile.user.id,"======================="
 
         if self.cleaned_data["userType"] == "store":
             id = self.cleaned_data["typeID"]
             store = Store.objects.get(id = id)
+            print profile.user_id
             Employee.objects.create(
-                user = user,
+                profile=profile,
                 store = store
             )
         elif self.cleaned_data["userType"] == "manager":
             id = self.cleaned_data["typeID"]
             franchise = Franchise.objects.get(id = id)
             Manager.objects.create(
-                user = user,
+                profile=profile,
                 franchise = franchise
             )
         else:
             pass
+
+        return user
             
 class StoreForm(forms.ModelForm):
     name = forms.CharField(
         required = True,
         max_length = 100
+    )
+    number = forms.IntegerField(
+        required = True,
     )
     location = forms.CharField(
         required = True,
@@ -73,7 +91,8 @@ class StoreForm(forms.ModelForm):
         fields = (
             "franchise",
             "name",
-            "location"
+            "location",
+            "number"
         )
 
 class UpdateProfile(forms.ModelForm):
@@ -126,45 +145,54 @@ class UpdateProfile(forms.ModelForm):
         # print password
         # user.password = user.password
         profile = Profile.objects.get(user = user)
-        
         # Prevents empty input
         userName = self.cleaned_data["username"]
         if user.username != userName and userName != "":
             # print "Username Change"
             user.username = userName
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
 
         firstName = self.cleaned_data["firstname"]
         if user.first_name != firstName and firstName != "":
             # print "Change Firstname"
             user.first_name = firstName
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
             
         lastName = self.cleaned_data["lastname"]
         if user.last_name != lastName and lastName != "":
             # print "Change Firstname"
             user.last_name = lastName
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
 
         email = self.cleaned_data["email"]
         if user.email != email and email != "":
             # print "Change Email"
             user.email = email
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
 
         address = self.cleaned_data["address"]
         if profile.address != address and address != "":
             # print "Change Address"
             profile.address = address
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
 
         cellNumber = self.cleaned_data["cellnumber"] 
         if profile.cellnumber != cellNumber and cellNumber != "":
             # print "Change Cell Phone"
             profile.cellnumber = cellNumber
+            # reason += "Username is changed from " + user.username + " to " + userName + "."
 
         homeNumber = self.cleaned_data["homenumber"] 
         if profile.homenumber != homeNumber and homeNumber != "":
             # print "Change Cell Phone"
             profile.homenumber = homeNumber
+        # reason += "Username is changed from " + user.username + " to " + userName + "."
 
+        # do custom stuff
+        # profile.changeReason = "User information is modified."
+        # profile._history_date = datetime.now()
 
-        if commit:  
+        if commit:
             user.password = user.password
             user.save()
             profile.save()
@@ -201,6 +229,25 @@ class EmergencyContactForm(forms.ModelForm):
             "relationship",
             "homenumber",
             "cellnumber",
+        )
+
+    def save(self, commit=True):
+        user = super(EmergencyContactForm, self).save(commit=False)
+
+        # profile = self.cleaned_data["profile"]
+        # profile.changeReason = "An emergency contact is created."
+        # profile.save()
+
+        if commit:
+            user.save()
+        return user
+
+class RequestForm(forms.ModelForm):
+    class Meta:
+        model = Request
+        fields = (
+            "employee",
+            "content"
         )
 
 class UpdatEmergencyContactForm(forms.ModelForm):
@@ -263,8 +310,9 @@ class UpdatEmergencyContactForm(forms.ModelForm):
             # print "Change Cell Phone"
             contact.homenumber = homeNumber
 
-        if commit:  
+        # profile = Profile.objects.get(self.cleaned_data["profile"])
+        # profile.changeReason = "An emergency contact is created."
 
+        if commit:
             contact.save()
-
         return contact

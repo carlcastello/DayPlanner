@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'DayPlanner',
     'rest_framework',
     'widget_tweaks',
-    'easy_pdf'
+    'easy_pdf',
+    'simple_history',
     # 'schedule',
     # 'djangobower',
 ]
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'WebApp.urls'

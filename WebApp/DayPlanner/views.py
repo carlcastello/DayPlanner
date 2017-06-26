@@ -31,33 +31,43 @@ class HomeView(TemplateView):
 
     def get(self, *args, **kwargs):
         user = self.request.user
-
+        profile = Profile.objects.get(user=user)
         # Render template depending on a user instance
         try:
-            Manager.objects.get(user=user)
+            Manager.objects.get(profile=profile)
             self.template_name = "DayPlanner/home.html"
         except ObjectDoesNotExist:
-            Employee.objects.get(user=user)
+            Employee.objects.get(profile=profile)
             self.template_name = "DayViewer/home.html"
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         response = super(HomeView, self).get(*args, **kwargs)
         return response
+
+    # Only the employees can post a request in Home View
+    method_decorator(csrf_protect)
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        if request.POST.get("schedule_request"):
+            # Create a Request for schedule
+            pass
+
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         user = self.request.user
+        profile = Profile.objects.get(user=user)
 
         manager = None
         employee = None
         try:
-            manager = Manager.objects.get(user = user)
+            manager = Manager.objects.get(profile=profile)
         except ObjectDoesNotExist:
-            employee = Employee.objects.get(user=user)
+            employee = Employee.objects.get(profile=profile)
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         # This method creates a different view between employee and manager
         if manager:
@@ -127,15 +137,15 @@ class ProfileView(TemplateView):
 
     def get(self, *args, **kwargs):
         user = self.request.user
+        profile = Profile.objects.get(user=user)
 
         # Limit this view for only employees
         try:
-            Employee.objects.get(user=user)
+            Employee.objects.get(profile=profile)
         except ObjectDoesNotExist:
-            Manager.objects.get(user=user)
             raise Http404
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         response = super(ProfileView, self).get(*args, **kwargs)
         return response
@@ -143,7 +153,12 @@ class ProfileView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = get_object_or_404(User,pk=kwargs["pk"])
-        context["profile"] = Employee.objects.get(user=user)
+
+        history = Profile.history.filter(user=user)
+        profile = Profile.objects.get(user=user)
+
+        context["profile"] = profile
+        context["user_history"] = history
         return context
 
 @method_decorator(login_required, name='dispatch')
@@ -154,14 +169,15 @@ class RegisteredUsersView(TemplateView):
 
     def get(self, *args, **kwargs):
         user = self.request.user
+        profile = Profile.objects.get(user=user)
 
-        # Limit this view for only employees
+        # Limit this view for only managers
         try:
-            Manager.objects.get(user=user)
+            Manager.objects.get(profile=profile)
         except ObjectDoesNotExist:
             raise Http404
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         response = super(RegisteredUsersView, self).get(*args, **kwargs)
         return response
@@ -173,43 +189,50 @@ class RegisteredUsersView(TemplateView):
             form = UserForm(request.POST)
             if form.is_valid():
                 string = request.POST.get("username")
+                # profile.changeReason = request.POST.get("first_name") + " - " + request.POST.get("last_name") + " " + "is created!"
                 self.form_valid(form,string)
             else:
                 self.form_invalid(form)
 
         elif request.POST.get("createStore"):
-            franchise = Manager.objects.get(user = request.user).franchise.id
+            user = self.request.user
+            profile = Profile.objects.get(user=user)
+            franchise = Manager.objects.get(profile=profile).franchise.id
 
             form_arguments = {
                 "name" : request.POST.get("name"),
                 "location" : request.POST.get("location"),
-                "franchise" : franchise
+                "franchise" : franchise,
+                "number" : request.POST.get("number"),
             }
             form = StoreForm(form_arguments)
             if form.is_valid():
-                string = request.POST.get("name") + " - " + request.POST.get("location")
+                string = request.POST.get("name") + " - " + request.POST.get("location") + " " + "is created!"
                 self.form_valid(form,string)
             else:
                 self.form_invalid(form)
 
         elif request.POST.get("deleteStore"):
             store = Store.objects.get(id = request.POST.get("storeid"))
-        
-            messages.success(request, store.name + " " + " is successfully deleted!")
- 
+
+            store_string = store.name + " - " + store.location + " " + " is deleted!"
+            messages.success(request, store_string)
+
             for employee in store.employee_set.all():
                 user = employee.user
                 first_name = user.first_name
                 last_name = user.last_name
-                messages.success(request, first_name + " " + last_name + " is deleted!")
+                user_string = first_name + " " + last_name + " is deleted!"
+                messages.success(request, user_string)
             store.delete()
+
         else:
             raise Http404("Form does not exist")
         return redirect(self.success_url)
 
-    def form_valid(self,form,username):
+    def form_valid(self,form,message):
         form.save()
-        messages.success(self.request, username + " " +"is succesfully created!")
+        messages.success(self.request, message)
 
     def form_invalid(self, form):
         for field in form:
@@ -221,7 +244,8 @@ class RegisteredUsersView(TemplateView):
         context = super(RegisteredUsersView, self).get_context_data(**kwargs)
         
         user = self.request.user
-        franchise = Manager.objects.get(user = user).franchise
+        profile = Profile.objects.get(user=user)
+        franchise = Manager.objects.get(profile=profile).franchise
 
         managers = franchise.manager_set.all()
         stores = franchise.store_set.all()
@@ -232,7 +256,6 @@ class RegisteredUsersView(TemplateView):
 
         return context
 
-
 @method_decorator(login_required, name='dispatch')
 class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
@@ -241,14 +264,15 @@ class DetailUserView(TemplateView):
 
     def get(self, *args, **kwargs):
         user = self.request.user
+        profile = Profile.objects.get(user=user)
 
         # Limit this view for only employees
         try:
-            Manager.objects.get(user=user)
+            Manager.objects.get(profile=profile)
         except ObjectDoesNotExist:
             raise Http404
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         response = super(DetailUserView, self).get(*args, **kwargs)
         return response
@@ -264,11 +288,14 @@ class DetailUserView(TemplateView):
             
             first_name = user.first_name
             last_name = user.last_name
-            
+
+            string = first_name + " " + last_name + " is deleted!"
             profile = Profile.objects.get(user=user)
+            profile.changeReason = string
+            profile.save()
             profile.delete()
 
-            messages.success(request, first_name + " " + last_name + " is deleted!")
+            messages.success(request, string)
             return redirect(self.delete_url)
 
         elif request.POST.get("modifyUser"):
@@ -349,12 +376,14 @@ class DetailUserView(TemplateView):
         user = User.objects.get(pk = kwargs["pk"])
         # account = None
 
+        history = Profile.history.filter(user=user)
+
         profile = Profile.objects.get(user=user)
         context["isManager"] = True
         context["profile"] = profile
+        context["user_history"] = history
 
         return context
-
 
 @method_decorator(login_required, name='dispatch')
 class SchedulePlannerView(TemplateView):
@@ -366,14 +395,15 @@ class SchedulePlannerView(TemplateView):
 
     def get(self, *args, **kwargs):
         user = self.request.user
+        profile = Profile.objects.get(user=user)
 
         # Limit this view for only employees
         try:
-            Manager.objects.get(user=user)
+            Manager.objects.get(profile=profile)
         except ObjectDoesNotExist:
             raise Http404
         except:
-            raise HttpResponse(status=500)
+            return HttpResponse(status=500)
 
         response = super(SchedulePlannerView, self).get(*args, **kwargs)
         return response
@@ -459,7 +489,8 @@ class SchedulePlannerView(TemplateView):
         context = super(SchedulePlannerView, self).get_context_data(**kwargs)
 
         user = self.request.user
-        franchise = Manager.objects.get(user = user).franchise
+        profile = Profile.objects.get(user=user)
+        franchise = Manager.objects.get(profile=profile).franchise
         stores = franchise.store_set.all()
 
         date = self.__get_arg_date(kwargs)

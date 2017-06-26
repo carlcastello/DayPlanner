@@ -133,14 +133,16 @@
 					<thead>
 						<tr>
 							<th>Date</th>
+							<th>Time</th>
 							<th>Description</th>
 						</tr>
 					</thead>
 					<tbody>
-						{% for result in results %}
+						{% for history in user_history %}
 						<tr class="gradeA">
-							<td>{{ result.article.id }}</td>
-							<td>{{ result.article.name }}</td>
+							<td>{{ history.history_date.date }}</td>
+							<td>{{ history.history_date.time }}</td>
+							<td>{{ history.history_change_reason }}</td>
 						</tr>
 						{% endfor %}
 					</tbody>

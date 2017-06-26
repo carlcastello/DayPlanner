@@ -31,10 +31,11 @@
 <table>
     <thead>
         <tr>
-            <th>
-                <span style="font-size: 15px;"> Store: <br> {{ store.id }} <br> </span>
+            <th style="text-align:left;">
             </th>
             <th>
+                <span style="font-size: 15px;"> #{{ store.number }}</span>
+                <br>
                 <span style="font-size: 15px;"> {{ store.name }} <br> {{ store.location }} </span>
             </th>
             <th>
@@ -43,7 +44,6 @@
         </tr>
     </thead>
 </table>
-<br>
 <br>
 {% for store, employees in stores.items %}
 <table class="table table-condensed table-bordered table-striped">
@@ -118,7 +118,7 @@
             <td>
                 <div class="row">
                     <div class="col-lg-12">
-                        <span style="font-size: 13px;">{{ employee.user.first_name }} {{ employee.user.last_name }} </span>
+                        <span style="font-size: 13px;">{{ employee.profile.user.first_name }} {{ employee.profile.user.last_name }} </span>
                     </div>
                 </div>
             </td>
@@ -129,7 +129,7 @@
                     <br>
                     <span style="font-size: 13px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ day.startingTime }}</span>
                     <br>
-                    <span style="font-size: 7px">To:</span>
+                    <span style="font-size: 7px;">To:</span>
                     <br>
                     <span style="font-size: 13px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ day.endTime }}</span>
 

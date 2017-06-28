@@ -103,7 +103,7 @@
                                         <br/>
                                         <br/>
                                         {% if not isBefore %}
-                                            <a href="#" class="btn btn-info" data-toggle="popover" title="{% if employee.request %}As of {{ employee.request.date.date }}{% else %} {{employee.profile.user.first_name}}'s Availability {% endif %}" data-content="{% if employee.request %}{{ employee.request.content }}{% else %} None {% endif %}" data-footer="boo">Show Availability</a>
+                                            <a href="#" class="btn btn-info" data-toggle="popover" title="{% if employee.request %}As of {{ employee.request.datetime.date }}{% else %} {{employee.profile.user.first_name}}'s Availability {% endif %}" data-content="{% if employee.request %}{{ employee.request.availability }}{% else %} None {% endif %}" data-footer="boo">Show Availability</a>
 									    {% endif %}
                                     </div>
 								</div>

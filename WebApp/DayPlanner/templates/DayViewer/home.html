@@ -1,4 +1,5 @@
 {% extends 'base_cp.html' %}
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
@@ -12,6 +13,15 @@
         </h1>
     </div>
 </div>
+
+{% if messages %}
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible">
+			{{ message }}
+		</div>
+	{% endfor %}
+{% endif %}
+
 <div class="row">
     <div class="col-lg-12">
         <div class="panel panel-default">
@@ -24,15 +34,38 @@
 					</div>
 				</div>
             </div>
-            <form method="post" role="form">
+            <form method="post" role="form" id="form">
                 {% csrf_token %}
 			<div class="panel-body">
-
+				<div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+							 <label>As of</label>
+							<!--<textarea class="form-control" rows="5" id="shifts"></textarea>-->
+							<input type="text"  class="form-control disabled" value="{{ user_request.datetime }}" disabled>
+						</div>
+                    </div>
+					<div class="col-lg-6">
+						<div class="form-group has-feedback">
+							 <label>Shifts</label>
+							<!--<textarea class="form-control" rows="5" id="shifts"></textarea>-->
+							<input type="number"  class="form-control" name="shifts" value="{{ user_request.shifts }}" required>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="form-group">
+							 <label >Availability</label>
+							<textarea class="form-control" rows="5" name="availability" required>{{ user_request.availability }}</textarea>
+						</div>
+					</div>
+				</div>
             </div>
             <div class="panel-footer">
                 <div class="row">
                     <div class="col-lg-12 text-right">
-                        <button class="btn btn-success" type="submit" name="submit" disabled>Submit</button>
+                        <button class="btn btn-success" type="submit" name="submit" value="True">Submit</button>
                     </div>
                 </div>
             </div>
@@ -157,4 +190,8 @@
 {% endblock %}
 
 {% block javascript %}
+<script src="{% static 'js/validator.js' %}"></script>
+<script>
+    $('#form').validator()
+</script>
 {% endblock %}

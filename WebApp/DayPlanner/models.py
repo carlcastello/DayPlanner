@@ -133,20 +133,20 @@ class Employee(models.Model):
         return self.profile.user.first_name + " " + self.profile.user.last_name
 
 
-
-
 class Request(models.Model):
-    date = models.DateTimeField(
+    datetime = models.DateTimeField(
         default=timezone.now
     )
     employee = models.OneToOneField(
         Employee,
-        default=None,
         on_delete = models.CASCADE
     )
-    content = models.TextField(
-        default=None
+    availability = models.TextField(
     )
+    shifts = models.PositiveIntegerField(
+        default=0
+    )
+
 
 
 class TimeClock(models.Model):

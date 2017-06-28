@@ -394,7 +394,10 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-    $("#dataTables").DataTable();
+    $("#dataTables").DataTable({
+    	"lengthMenu": [5, 10, 15, 20, 25],
+        "pageLength": 5
+    });
 });
 </script>
 

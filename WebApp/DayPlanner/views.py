@@ -13,9 +13,12 @@ from django.contrib.auth.models import User
 from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule, Profile, EmergencyContact
 
 from django.utils.safestring import mark_safe
-from datetime import date, datetime
+from datetime import date
+
+from django.utils import timezone
+
 from .controller import WeekCalendar
-from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, UpdatEmergencyContactForm
+from .forms import UserForm, StoreForm, UpdateProfile, EmergencyContactForm, UpdatEmergencyContactForm, RequestForm
 
 from django.contrib import messages
 
@@ -27,17 +30,18 @@ from easy_pdf.views import PDFTemplateView
 @method_decorator(login_required, name='dispatch')
 class HomeView(TemplateView):
     template_name = None
-    current_date = datetime.now().date()
+    current_date = timezone.now().date()
+    success_url = "DayPlanner:home"
 
     def get(self, *args, **kwargs):
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
+        profile = self.request.user.profile
+
         # Render template depending on a user instance
         try:
-            Manager.objects.get(profile=profile)
+            profile.manager
             self.template_name = "DayPlanner/home.html"
         except ObjectDoesNotExist:
-            Employee.objects.get(profile=profile)
+            profile.employee
             self.template_name = "DayViewer/home.html"
         except:
             return HttpResponse(status=500)
@@ -49,23 +53,52 @@ class HomeView(TemplateView):
     method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
         user = self.request.user
-        if request.POST.get("schedule_request"):
-            # Create a Request for schedule
-            pass
+        employee = user.profile.employee
 
+        user_request = employee.request
+
+
+        if request.POST.get("submit"):
+            # Create a Request for schedule
+
+            form_arguments = {
+                "datetime" : timezone.now(),
+                "shifts" : request.POST.get("shifts"),
+                "availability": request.POST.get("availability")
+            }
+            form = RequestForm(form_arguments,instance=user_request)
+            if form.has_changed():
+                if form.is_valid():
+                    message = "Availability is updated."
+                    self.form_valid(form,message)
+                else:
+                    self.form_invalid(form)
+
+        else:
+            raise Http404
+        return redirect(self.success_url)
+
+    def form_valid(self,form,message):
+        form.save()
+        messages.success(self.request, message)
+
+    def form_invalid(self, form):
+        for field in form:
+            for error in field.errors:
+                messages.error(self.request,field.label + ": " + error)
+        return True
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
+        profile = self.request.user.profile
 
         manager = None
         employee = None
         try:
-            manager = Manager.objects.get(profile=profile)
+            manager = profile.manager
         except ObjectDoesNotExist:
-            employee = Employee.objects.get(profile=profile)
+            employee = profile.employee
         except:
             return HttpResponse(status=500)
 
@@ -111,6 +144,13 @@ class HomeView(TemplateView):
         last_week = calendar.get_week_previous()
         next_week = calendar.get_week_next()
 
+        user_request = None
+        try:
+            user_request = employee.request
+        except ObjectDoesNotExist:
+            pass
+
+        context["user_request"] = user_request
         context["lastWeek"] = last_week
         context["nextWeek"] = next_week
         context["week"] = week
@@ -188,7 +228,7 @@ class RegisteredUsersView(TemplateView):
         if request.POST.get("createUser"):
             form = UserForm(request.POST)
             if form.is_valid():
-                string = request.POST.get("username")
+                string = request.POST.get("firstname") + " " + request.POST.get("lastname") + " has been created."
                 # profile.changeReason = request.POST.get("first_name") + " - " + request.POST.get("last_name") + " " + "is created!"
                 self.form_valid(form,string)
             else:
@@ -280,34 +320,35 @@ class DetailUserView(TemplateView):
     method_decorator(csrf_protect)
     def post(self,request,*args, **kwargs):
         user = User.objects.get(pk = kwargs["pk"])
+        # profile = Profile.objects.get(user=user)
+        profile = user.profile
+        first_name = user.first_name
+        last_name = user.last_name
+
         # print request.POST.get("confirm-user-delete")
         # Hahahahahahahhahahahahah
         # Refractor this please!!!
         if request.POST.get("deleteUser"):
             # account = None
-            
-            first_name = user.first_name
-            last_name = user.last_name
+            message = first_name + " " + last_name + " is deleted."
 
-            string = first_name + " " + last_name + " is deleted!"
-            profile = Profile.objects.get(user=user)
-            profile.changeReason = string
-            profile.save()
+            self.profile_history(profile,message)
             profile.delete()
 
-            messages.success(request, string)
+            messages.success(request, message)
             return redirect(self.delete_url)
 
         elif request.POST.get("modifyUser"):
             # print "Hello"
-            form = UpdateProfile(request.POST, instance=user)
-            if form.is_valid():
-                message = "Successfully modified user profile"
-                self.form_valid(form,message)
-                # print "Valid"
-            else:
-                self.form_invalid(form)
-                # print "Invalid"
+            form = UpdateProfile(request.POST, instance=profile)
+            if form.has_changed():
+                if form.is_valid():
+                    message = first_name + " " + last_name + " has been modified."
+                    self.form_valid(form,message)
+                    # self.profile_history(profile, message)
+                else:
+                    self.form_invalid(form)
+
             return redirect(self.modify_url,user.pk)
 
         elif request.POST.get("createContact"):
@@ -318,29 +359,31 @@ class DetailUserView(TemplateView):
                 "relationship" : request.POST.get("relationship"),
                 "homenumber" : request.POST.get("homenumber"),
                 "cellnumber" : request.POST.get("cellnumber"),
-                "profile" : Profile.objects.get(user=user).id
+                "profile" : profile.id
             }
 
             form = EmergencyContactForm(form_arguments)
             if form.is_valid():
                 # form.save()
-                message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is created as emergency contact." 
+                message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is created as emergency contact."
+
                 self.form_valid(form,message)
+                self.profile_history(profile, message)
             else:
                 self.form_invalid(form)
             return redirect(self.modify_url,user.pk)
 
         elif request.POST.get("editContact"):
-            # print("Edit Contact")
-            # print request.POST.get("contactidEdit")/
             emergency_contact = EmergencyContact.objects.get(id=request.POST.get("contactidEdit"))
             form = UpdatEmergencyContactForm(request.POST, instance=emergency_contact)
-            if form.is_valid():
-                message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is updated as emergency contact." 
-                # messages.success(self.request,message)
-                self.form_valid(form,message)
-            else:
-                pass
+
+            if form.has_changed():
+                if form.is_valid():
+                    message = request.POST.get("firstname") + " " + request.POST.get("lastname") + " is updated as emergency contact."
+                    self.form_valid(form, message)
+                    self.profile_history(profile, message)
+                else:
+                    self.form_invalid(form)
 
             return redirect(self.modify_url,user.pk)
 
@@ -349,6 +392,9 @@ class DetailUserView(TemplateView):
             emergency_contact = EmergencyContact.objects.get(id=request.POST.get("contactidDelete"))
             
             message = emergency_contact.firstname + " " + emergency_contact.lastname + " is deleted as emergency contact."
+
+            self.profile_history(profile, message)
+
             messages.success(self.request,message)
             
             emergency_contact.delete()
@@ -357,6 +403,10 @@ class DetailUserView(TemplateView):
             # pass
 
         raise Http404("Form does not exist")
+
+    def profile_history(self,profile,string):
+        profile.changeReason = string
+        profile.save()
 
     def form_valid(self,form,message):
         form.save()
@@ -367,8 +417,6 @@ class DetailUserView(TemplateView):
             for error in field.errors:
                 messages.error(self.request,field.label + ": " + error)
         return True
-    
-
 
     def get_context_data(self, **kwargs):
         context = super(DetailUserView, self).get_context_data(**kwargs)
@@ -391,7 +439,7 @@ class SchedulePlannerView(TemplateView):
     success_url = "DayPlanner:schedule_planner"
     pdf_url = "DayPlanner:schedule_pdf"
 
-    current_date = datetime.now().date()
+    current_date = timezone.now().date()
 
     def get(self, *args, **kwargs):
         user = self.request.user

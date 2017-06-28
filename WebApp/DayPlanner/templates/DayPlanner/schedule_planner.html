@@ -103,7 +103,28 @@
                                         <br/>
                                         <br/>
                                         {% if not isBefore %}
-                                            <a href="#" class="btn btn-info" data-toggle="popover" title="{% if employee.request %}As of {{ employee.request.datetime.date }}{% else %} {{employee.profile.user.first_name}}'s Availability {% endif %}" data-content="{% if employee.request %}{{ employee.request.availability }}{% else %} None {% endif %}" data-footer="boo">Show Availability</a>
+                                            <a href="#" class="btn btn-info" data-toggle="popover" data-trigger="focus"  data-placement="bottom" title="As of {{ employee.request.datetime.date }}"
+											   data-content="
+											   		{% if employee.request.availability %}
+											   		<dl>
+											   			<dt>
+											   				Request:
+											   			</dt>
+											   			<dd>
+											   				{{ employee.request.availability }}
+											   			</dd>
+											   			<br/>
+											   			<dt>
+											   				No. Shifts:
+											   			</dt>
+											   			<dd>
+											   				{{ employee.request.shifts }}
+											   			</dd>
+											   		</dl>
+											   		{% else %}
+											   			None Given.
+											   		{% endif %}"
+											   data-footer="boo">Show Availability</a>
 									    {% endif %}
                                     </div>
 								</div>
@@ -200,22 +221,14 @@ $(function() {
 </script>
 
 <script>
-$(document).on('click', function (e) {
-    $('[data-toggle="popover"],[data-original-title]').each(function () {
-        //the 'is' for buttons that trigger popups
-        //the 'has' for icons within a button that triggers a popup
-        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-            (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
-        }
 
-    });
-});
 </script>
 
 <script>
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover({
-        container: 'body'
+        container: 'body',
+        html:true
     });
 });
 </script>

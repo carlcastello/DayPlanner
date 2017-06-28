@@ -1,6 +1,7 @@
 {% url 'DayPlanner:home' as home %}
 {% url 'DayPlanner:registered_users' as registered_users %}
 {% url 'DayPlanner:schedule_planner' as schedule_planner %}
+{% url 'DayPlanner:time_clock' as time_clock %}
 
 
 <!-- Navigation -->
@@ -39,7 +40,7 @@
                     <a href="{{ schedule_planner }}"><i class="fa fa-calendar-plus-o fa-fw"></i> Schedule Planner</a>
                 </li>
                 <li>
-                    <a href="/app"><i class="fa fa-clock-o fa-fw"></i> Time Clock</a>
+                    <a href="{{ time_clock }}"><i class="fa fa-clock-o fa-fw"></i> Time Clock</a>
                 </li>
             </ul>
         </div>

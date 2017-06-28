@@ -24,6 +24,22 @@ class UserForm(UserCreationForm):
         required = True,
         max_length=100
     )
+    email = forms.EmailField(
+        required=False,
+        max_length=100
+    )
+    address = forms.CharField(
+        required=False,
+        max_length=100
+    )
+    homenumber = forms.CharField(
+        required=False,
+        max_length=12
+    )
+    cellnumber = forms.CharField(
+        required=False,
+        max_length=12
+    )
     class Meta:
         model = User
         fields = (
@@ -32,6 +48,10 @@ class UserForm(UserCreationForm):
             "username",
             "firstname",
             "lastname",
+            "email",
+            "address",
+            "homenumber",
+            "cellnumber",
             "password1", 
             "password2"
         )
@@ -40,14 +60,18 @@ class UserForm(UserCreationForm):
         user = super(UserForm, self).save(commit = False)
         user.first_name = self.cleaned_data["firstname"]
         user.last_name = self.cleaned_data["lastname"]
-
+        user.email = self.cleaned_data["email"]
 
         if commit:
             user.save()
 
         profile = Profile.objects.create(
-            user=user
+            user=user,
+            address=self.cleaned_data["address"],
+            homenumber=self.cleaned_data["homenumber"],
+            cellnumber=self.cleaned_data["cellnumber"],
         )
+
         update_change_reason(profile, user.first_name + " " + user.last_name + " has been created.")
 
         if self.cleaned_data["userType"] == "store":

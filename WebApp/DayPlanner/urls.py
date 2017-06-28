@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^schedule-planner/(?P<date>[0-9-]+)/(?P<store>[0-9a-f- ]+)/$', views.SchedulePDFView.as_view(), name = 'schedule_pdf' ),
     # url(r'^schedule-planner/(?P<date>[0-9-]+)/export-schedule/$', views.SchedulePDFView.as_view(), name = 'schedule_pdf' ),
 
-    url(r'^clock/$', views.TimeClockView.as_view(), name = 'time_clock' ),
+    url(r'^time-clock/$', views.TimeClockView.as_view(), name = 'time_clock' ),
 ]

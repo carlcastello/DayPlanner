@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 
 from django.views.generic import TemplateView
@@ -27,15 +28,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from easy_pdf.views import PDFTemplateView
 
-@method_decorator(login_required, name='dispatch')
+decorators = [cache_control(no_cache=True, must_revalidate=True, no_store=True),login_required]
+
+# cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@method_decorator(decorators, name='dispatch')
 class HomeView(TemplateView):
     template_name = None
     current_date = timezone.now().date()
     success_url = "DayPlanner:home"
 
     def get(self, *args, **kwargs):
-        profile = self.request.user.profile
 
+        profile = self.request.user.profile
         # Render template depending on a user instance
         try:
             profile.manager
@@ -91,14 +95,12 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        profile = self.request.user.profile
-
         manager = None
         employee = None
         try:
-            manager = profile.manager
+            manager = self.request.user.profile.manager
         except ObjectDoesNotExist:
-            employee = profile.employee
+            employee = self.request.user.profile.employee
         except:
             return HttpResponse(status=500)
 
@@ -171,17 +173,16 @@ class HomeView(TemplateView):
 
         return arg_date
 
+# @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(login_required, name='dispatch')
 class ProfileView(TemplateView):
     template_name = "DayViewer/profile.html"
 
     def get(self, *args, **kwargs):
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
 
         # Limit this view for only employees
         try:
-            Employee.objects.get(profile=profile)
+            self.request.user.profile.employee
         except ObjectDoesNotExist:
             raise Http404
         except:
@@ -201,6 +202,7 @@ class ProfileView(TemplateView):
         context["user_history"] = history
         return context
 
+# @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(login_required, name='dispatch')
 class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
@@ -208,12 +210,10 @@ class RegisteredUsersView(TemplateView):
     form_class = UserForm
 
     def get(self, *args, **kwargs):
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
 
         # Limit this view for only managers
         try:
-            Manager.objects.get(profile=profile)
+            self.request.user.profile.manager
         except ObjectDoesNotExist:
             raise Http404
         except:
@@ -235,9 +235,7 @@ class RegisteredUsersView(TemplateView):
                 self.form_invalid(form)
 
         elif request.POST.get("createStore"):
-            user = self.request.user
-            profile = Profile.objects.get(user=user)
-            franchise = Manager.objects.get(profile=profile).franchise.id
+            franchise = self.request.user.profile.franchise.id
 
             form_arguments = {
                 "name" : request.POST.get("name"),
@@ -296,6 +294,7 @@ class RegisteredUsersView(TemplateView):
 
         return context
 
+# @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(login_required, name='dispatch')
 class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
@@ -303,12 +302,10 @@ class DetailUserView(TemplateView):
     modify_url = "DayPlanner:user_detail_view"
 
     def get(self, *args, **kwargs):
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
 
-        # Limit this view for only employees
+        # Limit this view for only Managers
         try:
-            Manager.objects.get(profile=profile)
+            self.request.user.profile.manager
         except ObjectDoesNotExist:
             raise Http404
         except:
@@ -426,13 +423,14 @@ class DetailUserView(TemplateView):
 
         history = Profile.history.filter(user=user)
 
-        profile = Profile.objects.get(user=user)
+        profile = user.profile
         context["isManager"] = True
         context["profile"] = profile
         context["user_history"] = history
 
         return context
 
+# @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(login_required, name='dispatch')
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
@@ -442,12 +440,10 @@ class SchedulePlannerView(TemplateView):
     current_date = timezone.now().date()
 
     def get(self, *args, **kwargs):
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
 
-        # Limit this view for only employees
+        # Limit this view for only managers
         try:
-            Manager.objects.get(profile=profile)
+            self.request.user.profile.manager
         except ObjectDoesNotExist:
             raise Http404
         except:
@@ -536,8 +532,7 @@ class SchedulePlannerView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SchedulePlannerView, self).get_context_data(**kwargs)
 
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
+        profile = self.request.user.profile
         franchise = Manager.objects.get(profile=profile).franchise
         stores = franchise.store_set.all()
 
@@ -592,6 +587,8 @@ class SchedulePlannerView(TemplateView):
     #             data[store][employee] = week_schedule
     #     return data
 
+# @cache_control(no_cache=True, must_revalidate=True)
+@method_decorator(login_required, name='dispatch')
 class SchedulePDFView(PDFTemplateView):
     template_name = "EasyPDF/schedule.html"
 
@@ -627,7 +624,24 @@ class SchedulePDFView(PDFTemplateView):
 
         return arg_date
 
+# @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(login_required, name='dispatch')
 class TimeClockView(TemplateView):
-    def get(self,request):
-        return HttpResponse("Time Clock")
+    template_name = "DayPlanner/time_clock.html"
+
+    def get(self, *args, **kwargs):
+        # Limit this view for only managers
+        try:
+            self.request.user.profile.manager
+        except ObjectDoesNotExist:
+            raise Http404
+        except:
+            return HttpResponse(status=500)
+
+        response = super(TimeClockView, self).get(*args, **kwargs)
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super(TimeClockView, self).get_context_data(**kwargs)
+        context["isManager"] = True
+        return context

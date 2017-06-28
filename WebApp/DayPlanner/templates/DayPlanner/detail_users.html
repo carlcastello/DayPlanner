@@ -362,10 +362,10 @@
 								<input type="email" id="email" name="email" class="form-control" placeholder="Email">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="cellNumber" id="cellnumber" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9-+ ]+">
+								<input type="tel" id="cellnumber" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9-+ ]+">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="homeNumber" id="homenumber" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9-+ ]+">
+								<input type="tel" id="homenumber" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9-+ ]+">
 							</div>
 						</div>
 					</div>
@@ -464,5 +464,11 @@ $(".modal").on("hidden.bs.modal", function (event) {
 $(function() {
 	$("#side-menu li:nth-child(2) a").addClass("active");
 });
+</script>
+
+<script type="text/javascript">
+$(".createmodal").on("hidden.bs.modal", function (event) {
+	location.reload();
+})
 </script>
 {% endblock %}

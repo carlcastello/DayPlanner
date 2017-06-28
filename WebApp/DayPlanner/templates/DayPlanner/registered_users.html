@@ -210,10 +210,10 @@
 								<input type="email" name="email" class="form-control" placeholder="Email">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="cellNumber" name="email" class="form-control" placeholder="Cell Number" pattern="[0-9- ]+">
+								<input type="tel" name="cellnumber" class="form-control" placeholder="Cell Number" pattern="[0-9- ]+">
 							</div>
 							<div class="form-group col-sm-4 has-feedback">
-								<input type="homeNumber" name="email" class="form-control" placeholder="Home Number" pattern="[0-9- ]+">
+								<input type="tel" name="homenumber" class="form-control" placeholder="Home Number" pattern="[0-9- ]+">
 							</div>
 						</div>
 					</div>
@@ -287,8 +287,6 @@
 						<button class="btn btn-danger" name="deleteStore" value="true" type="submit">Delete</button>
 						<button class="btn btn-default" data-dismiss="modal">Close</button>
 					</form>
-					<!-- <a href="" class="btn btn-danger" id="confirm-store-delete">Delete</a> -->
-					<!-- <button class="btn btn-default" data-dismiss="modal">Close</button> -->
 				</div>
 			</div>
 		</div>
@@ -298,19 +296,6 @@
 
 {% block javascript %}
 <script src="{% static 'js/validator.js' %}"></script>
-<!-- 
-<script>	
-$(function() { //shorthand document.ready function
-	$('#createStoreForm').on('submit', function(event) { //use on if jQuery 1.7+
-		event.preventDefault();  
-		var store_name = $("#inputstorename").val()
-		var store_address = $("#inputstoreaddress").val()
-		// console.log(store_name + " " + store_address); //use the console for debugging, F12 in Chrome, not alerts
-		window.location.replace("/app/users/create-store/"+store_name+"/"+store_address);
-	});
-});
-</script>
- -->
 <script>
 // http://jsfiddle.net/Au9tc/605/
 $(document).on("click", ".btn-user-create", function () {
@@ -330,42 +315,7 @@ $(document).on("click", ".btn-store-delete", function () {
 
 <script type="text/javascript">
 $(".createmodal").on("hidden.bs.modal", function (event) {
-	$(this).find("input,textarea,select").val('').end();
-	$(".form-group").removeClass("has-error");
-	$(".form-group").removeClass("has-danger");
+	location.reload();
 })
 </script>
-
-
 {% endblock %}
-
-<!-- 
-<input type="text" id="objectValue" name="objectValue" value="" >
-					<input type="text" id="objectId" name="objectId" value="" >
-					<div class="form-group has-feedback">
-						<label for="inputUsername" class="control-label">Username</label>
-						<input type="text" class="form-control" id="inputUsername" placeholder="JSmith" required>
-						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-					</div>
-					<div class="form-group has-feedback">
-						<label for="inputFirstname" class="control-label">Firstname</label>
-						<input type="text" pattern="^[_A-z]{1,}$" class="form-control" id="inputFirstname" placeholder="John" required>
-						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-					</div>
-					<div class="form-group has-feedback">
-						<label for="inputLastname" class="control-label">Lastname</label>
-						<input type="text" pattern="^[_A-z]{1,}$" class="form-control" id="inputLastname" placeholder="Smith" required>
-						<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-					</div>
-					<div class="form-group">
-						<label for="inputPassword" class="control-label">Password</label>
-						<div class="form-inline row">
-							<div class="form-group col-sm-6">
-								<input type="password" data-minlength="8" class="form-control" id="inputPassword" placeholder="Password" required>
-								<div class="help-block">Minimum of 8 characters</div>
-							</div>
-							<div class="form-group col-sm-6">
-								<input type="password" class="form-control" id="inputPasswordConfirm" data-match="#inputPassword" data-match-error="Whoops, these don't match" placeholder="Confirm" required>
-							</div>
-						</div>
-					</div> -->

@@ -1,0 +1,15 @@
+#page-wrapper {
+    margin-top:50px;
+}
+.form-control[disabled],
+.form-control[readonly],
+fieldset[disabled] .form-control {
+    background-color: #ffffff !important;
+}
+
+.navbar-inverse .navbar-nav>li>a.active,
+.navbar-inverse .navbar-nav>li>a.active:focus,
+.navbar-inverse .navbar-nav>li>a.active:hover {
+    color: #fff;
+    background-color: #080808;
+}

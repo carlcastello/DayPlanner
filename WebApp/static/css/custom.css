@@ -1,0 +1,175 @@
+/*.panel-footer .btn {
+	width: 150px !important;
+}*/
+.login-panel {
+    margin-top: 25%;
+}
+
+.height-restrict {
+	height: 141px;
+}
+
+.halfwidth {
+	width: 50%;
+}
+
+.align-bottom.fullwidth {
+	left: 4px;
+	right: 4px;
+}
+
+.add-user {
+	font-size: 5em !important;
+	color: #999999;
+	margin-top: .5em;
+}
+
+.display-none{
+	display: none !important;
+}
+
+.schedule {
+	width: 100%;
+}
+
+.panel-title-with-buttons {
+	vertical-align: -webkit-baseline-middle;
+}
+
+.modal .form-inline .form-control {
+	width: 100% !important;
+}
+
+
+.fullwidth {
+	width: 100%;
+}
+
+.bottom-margin {
+	margin-bottom: 20px;
+}
+.margin-top {
+	margin-top: 20px;
+}
+
+
+
+#schedule-table {
+	width: 100%;	
+}
+
+#schedule-table th{
+	min-width: 135px;
+	text-align: center;	
+}
+
+#schedule-table td .form-group{
+	margin-bottom: 4px;
+}
+#schedule-table td .form-group:last-child{
+	margin-bottom: 0px;
+}
+
+
+
+
+/* Navbar Styling */
+.navbar-brand {
+    color:#fff !important;
+}
+
+body{
+    background:#222;
+}
+.navbar a {
+    color: #9d9d9d;
+    background:#222;
+}
+.sidebar ul li{
+    border-bottom:#080808;
+}
+.navbar ul li a:hover {
+    color: #fff;
+    background:none;
+
+}
+.navbar ul li a.active {
+    color: #fff;
+    background:rgba(255,255,255,0.2);
+}
+
+/*timepicker-picker  table td  a span,
+.timepicker-picker  table td,
+.timepicker-picker  table td  span
+{height: 30px !important;line-height: 30px !important;width: 30px !important; line-height:30px !important; padding:0px !important;}*/
+/*
+.btn {
+	width: 130px !important;
+	margin-right: 10px; 
+
+}
+
+.text-right .btn:last-child {
+	margin-right: 0px !important;
+}
+
+.yadcf-filter-reset-button{
+	display: none !important;
+}
+
+.filters {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.filters .row:first-child{
+	margin-bottom: 10px;
+}
+.filters .select2-container{
+	margin-left: -2px !important;
+}*/
+
+
+
+
+/* Search box for the Item */
+/*http://bootsnipp.com/snippets/featured/stylish-input-using-icon-font*/
+/*.stylish-input-group .input-group-addon{
+    background: white !important; 
+}
+.stylish-input-group .form-control{
+	border-right:0; 
+	box-shadow:0 0 0; 
+	border-color:#ccc;
+}
+.stylish-input-group button{
+    border:0;
+    background:transparent;
+}
+
+
+#yadcf-filter-wrapper--search_5 .yadcf-filter-wrapper,
+#yadcf-filter-wrapper--search_5 .yadcf-filter-wrapper-inner {
+	width: 100%;
+	border: none;
+	box-shadow: none;
+}
+
+#yadcf-filter-wrapper--search_5 .yadcf-filter-range-date {
+	width: 45% !important;
+	padding: 5px 5px;
+	border-radius: 4px; 
+	border: 1px solid #aaa;
+}
+
+#yadcf-filter-wrapper--search_5 .yadcf-filter-range-date-seperator {
+	margin: 0px !important;
+	display:inline-block;
+	width: 9%;
+}
+
+
+.article-form-group,
+.user-form-group,
+.date-form-group{
+	display: none;
+}*/

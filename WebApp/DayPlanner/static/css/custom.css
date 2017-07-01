@@ -71,6 +71,33 @@
 }
 
 
+
+
+/* Navbar Styling */
+.navbar-brand {
+    color:#fff !important;
+}
+
+body{
+    background:#222;
+}
+.navbar a {
+    color: #9d9d9d;
+    background:#222;
+}
+.sidebar ul li{
+    border-bottom:#080808;
+}
+.navbar ul li a:hover {
+    color: #fff;
+    background:none;
+
+}
+.navbar ul li a.active {
+    color: #fff;
+    background:rgba(255,255,255,0.2);
+}
+
 /*timepicker-picker  table td  a span,
 .timepicker-picker  table td,
 .timepicker-picker  table td  span

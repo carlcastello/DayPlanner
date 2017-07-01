@@ -174,7 +174,7 @@ class HomeView(TemplateView):
         return arg_date
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class ProfileView(TemplateView):
     template_name = "DayViewer/profile.html"
 
@@ -203,7 +203,7 @@ class ProfileView(TemplateView):
         return context
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class RegisteredUsersView(TemplateView):
     template_name = "DayPlanner/registered_users.html"
     success_url = "DayPlanner:registered_users"
@@ -295,7 +295,7 @@ class RegisteredUsersView(TemplateView):
         return context
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class DetailUserView(TemplateView):
     template_name = "DayPlanner/detail_users.html"
     delete_url = "DayPlanner:registered_users"
@@ -431,7 +431,7 @@ class DetailUserView(TemplateView):
         return context
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class SchedulePlannerView(TemplateView):
     template_name = "DayPlanner/schedule_planner.html"
     success_url = "DayPlanner:schedule_planner"
@@ -588,7 +588,7 @@ class SchedulePlannerView(TemplateView):
     #     return data
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class SchedulePDFView(PDFTemplateView):
     template_name = "EasyPDF/schedule.html"
 
@@ -625,7 +625,7 @@ class SchedulePDFView(PDFTemplateView):
         return arg_date
 
 # @cache_control(no_cache=True, must_revalidate=True)
-@method_decorator(login_required, name='dispatch')
+@method_decorator(decorators, name='dispatch')
 class TimeClockView(TemplateView):
     template_name = "DayPlanner/time_clock.html"
 

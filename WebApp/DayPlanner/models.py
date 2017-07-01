@@ -147,8 +147,6 @@ class Request(models.Model):
         default=0
     )
 
-
-
 class TimeClock(models.Model):
     id = models.CharField(
         max_length=100, 

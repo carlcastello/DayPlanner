@@ -56,6 +56,23 @@ class WeekCalendar:
                 data[store][employee] = week_schedule
         return data
 
+    def get_week_time_clock(self, stores):
+        data = {}
+        for store in stores:
+            data[store] = {}
+            for employee in store.employee_set.all():
+                week_schedule = []
+                for day in self.week:
+                    day_scedule = {}
+                    try:
+                        day_scedule[day] = employee.timeclock_set.get(date=day, employee=employee)
+                    except ObjectDoesNotExist:
+                        day_scedule[day] = None
+                    week_schedule.append(day_scedule)
+
+                data[store][employee] = week_schedule
+        return data
+
     def __get_full_week(self, date):
 
         weekStart = 0

@@ -98,6 +98,10 @@ body{
     background:rgba(255,255,255,0.2);
 }
 
+
+.td-none {
+    background:#f5f5f5;
+}
 /*timepicker-picker  table td  a span,
 .timepicker-picker  table td,
 .timepicker-picker  table td  span

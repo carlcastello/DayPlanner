@@ -30,6 +30,7 @@ from easy_pdf.views import PDFTemplateView
 
 decorators = [login_required,cache_control(no_cache=True, must_revalidate=True, no_store=True)]
 
+
 # cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @method_decorator(decorators, name='dispatch')
 class HomeView(TemplateView):
@@ -173,6 +174,7 @@ class HomeView(TemplateView):
 
         return arg_date
 
+
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
 class ProfileView(TemplateView):
@@ -201,6 +203,7 @@ class ProfileView(TemplateView):
         context["profile"] = profile
         context["user_history"] = history
         return context
+
 
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
@@ -293,6 +296,7 @@ class RegisteredUsersView(TemplateView):
         context['stores'] = stores
 
         return context
+
 
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
@@ -430,6 +434,7 @@ class DetailUserView(TemplateView):
 
         return context
 
+
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
 class SchedulePlannerView(TemplateView):
@@ -513,27 +518,11 @@ class SchedulePlannerView(TemplateView):
             else:
                 schedule.delete()
 
-    def __handle_export(self,request):
-        paragraphs = ["first paragraph", "second paragraph", "third paragraph"]
-        html_string = render_to_string("DayPlanner/schedule.html", {"paragraphs": paragraphs})
-
-        html = HTML(string=html_string)
-
-        html.write_pdf(target="/tmp/mypdf.pdf");
-
-        fs = FileSystemStorage("/tmp")
-        with fs.open("mypdf.pdf") as pdf:
-            response = HttpResponse(pdf, content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename='mypdf.pdf'"
-            return response
-
-        return response
 
     def get_context_data(self, **kwargs):
         context = super(SchedulePlannerView, self).get_context_data(**kwargs)
 
-        profile = self.request.user.profile
-        franchise = Manager.objects.get(profile=profile).franchise
+        franchise = self.request.user.profile.manager.franchise
         stores = franchise.store_set.all()
 
         date = self.__get_arg_date(kwargs)
@@ -587,6 +576,7 @@ class SchedulePlannerView(TemplateView):
     #             data[store][employee] = week_schedule
     #     return data
 
+
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
 class SchedulePDFView(PDFTemplateView):
@@ -624,10 +614,13 @@ class SchedulePDFView(PDFTemplateView):
 
         return arg_date
 
+
 # @cache_control(no_cache=True, must_revalidate=True)
 @method_decorator(decorators, name='dispatch')
 class TimeClockView(TemplateView):
     template_name = "DayPlanner/time_clock.html"
+
+    current_date = timezone.now().date()
 
     def get(self, *args, **kwargs):
         # Limit this view for only managers
@@ -643,5 +636,58 @@ class TimeClockView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TimeClockView, self).get_context_data(**kwargs)
+
+        franchise = self.request.user.profile.manager.franchise
+        stores = franchise.store_set.all()
+
+        date = self.__get_arg_date(kwargs)
+        is_before = self.__get_is_before(date)
+
+        calendar = WeekCalendar(date)
+        week = calendar.get_week()
+        last_week = calendar.get_week_previous()
+        next_week = calendar.get_week_next()
+
         context["isManager"] = True
+        context['lastWeek'] = last_week
+        context['nextWeek'] = next_week
+        context['week'] = week
+        context['isBefore'] = is_before
+        context['stores'] = calendar.get_week_time_clock(stores)
+
         return context
+
+    def __get_arg_date(self,kwargs):
+        arg_date = None
+        try:
+            urlDate = kwargs["date"].split("-")
+            year = int(urlDate[0])
+            month = int(urlDate[1])
+            day = int(urlDate[2])
+            arg_date = date(year, month, day)
+        except KeyError:
+            arg_date = self.current_date
+
+        return arg_date
+
+    def __get_is_before(self,arg_date):
+        if arg_date < self.current_date:
+            return True
+        return False
+
+    # def get_week_schedule(self,stores,week):
+    #     data = {}
+    #     for store in stores:
+    #         data[store] = {}
+    #         for employee in store.employee_set.all():
+    #             week_schedule = []
+    #             for day in week:
+    #                 day_scedule = {}
+    #                 try:
+    #                     day_scedule[day] = employee.dayschedule_set.get(date=day,employee=employee)
+    #                 except ObjectDoesNotExist:
+    #                     day_scedule[day] = None
+    #                 week_schedule.append(day_scedule)
+    #
+    #             data[store][employee] = week_schedule
+    #     return data

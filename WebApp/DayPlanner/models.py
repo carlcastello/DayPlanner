@@ -158,11 +158,10 @@ class TimeClock(models.Model):
         Employee,
         on_delete=models.CASCADE
     )
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        default = None
+    date = models.DateField(
+        default=None
     )
+
     signIn = models.DateTimeField()
 
     signOut = models.DateTimeField()
@@ -176,10 +175,13 @@ class DaySchedule(models.Model):
     )
 
     employee = models.ForeignKey(
-        Employee
+        Employee,
+        on_delete=models.CASCADE
     )
     
-    date = models.DateField()
+    date = models.DateField(
+        default=None
+    )
 
     lastModified = models.DateTimeField(
         auto_now = True

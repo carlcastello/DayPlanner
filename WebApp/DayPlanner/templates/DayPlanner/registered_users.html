@@ -24,7 +24,7 @@
 
 <div class="row">
 	<div class="col-lg-12">
-		<div class="panel panel-info ">
+		<div class="panel panel-default ">
 			<div class="panel-heading">
 				<div class="row">
 					<div class="col-xs-6">
@@ -89,12 +89,12 @@
 {% for store in stores %}
 <div class="row">
 	<div class="col-lg-12">
-		<div class="panel panel-info ">
+		<div class="panel panel-default ">
 			<div class="panel-heading">
 				<div class="row">
 					<div class="col-xs-6">
 						<span class="panel-title panel-title-with-buttons"> 
-						<a href="#{{ store.pk }}" data-toggle="collapse">{{ store.name }} - {{ store.location }}</a>
+						<a href="#{{ store.pk }}" data-toggle="collapse">{{ store.name.title }} - {{ store.location.title }}</a>
 						</span>
 					</div>
 					<div class="col-xs-6 text-right">

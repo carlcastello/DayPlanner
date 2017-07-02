@@ -28,15 +28,15 @@
 {% for store, employees in stores.items %}
 <div class="row">
 	<div class="col-lg-12">
-		<div class="panel panel-info ">
+		<div class="panel panel-default ">
 			<div class="panel-heading">
 				<div class="row">
 					<div class="col-lg-6 col-md-6">
-						<a href="#{{ store.pk }}" data-toggle="collapse">
-						<span class="panel-title panel-title-with-buttons"> 
-						{{ store.name }} - {{ store.location }}
+						<span class="panel-title panel-title-with-buttons">
+							<a href="#{{ store.pk }}" data-toggle="collapse">
+								{{ store.name.title }} - {{ store.location.title }}
+							</a>
 						</span>
-						</a>
 					</div>
 					<div class="col-lg-6 col-md-6 text-right">
 						<a href="{% url 'DayPlanner:schedule_planner' lastWeek %}" class="btn btn-success">
@@ -94,6 +94,7 @@
 						</tr>
 					</thead>
 					<tbody>
+						{% if employees %}
 						{% for employee, week in employees.items %}
 						<tr>
 							<td class="relative">
@@ -166,6 +167,13 @@
 							{% endfor %}
 						</tr>
 						{% endfor %}
+						{% else %}
+						<tr>
+                            <td colspan=100% class="text-center td-none">
+                                <h3>No Employees Registered on this store.</h3>
+                            </td>
+                        </tr>
+						{% endif %}
 					</tbody>
 				</table>
                 </div>

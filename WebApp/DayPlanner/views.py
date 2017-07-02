@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from .models import TimeClock, Store, Franchise, Employee, Manager, DaySchedule, Profile, EmergencyContact
 
 from django.utils.safestring import mark_safe
-from datetime import date
+from datetime import date, datetime
 
 from django.utils import timezone
 
@@ -28,7 +28,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from easy_pdf.views import PDFTemplateView
 
-decorators = [cache_control(no_cache=True, must_revalidate=True, no_store=True),login_required]
+decorators = [login_required,cache_control(no_cache=True, must_revalidate=True, no_store=True)]
 
 # cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @method_decorator(decorators, name='dispatch')
@@ -235,7 +235,7 @@ class RegisteredUsersView(TemplateView):
                 self.form_invalid(form)
 
         elif request.POST.get("createStore"):
-            franchise = self.request.user.profile.franchise.id
+            franchise = Manager.objects.get(profile=request.user.profile).franchise.id
 
             form_arguments = {
                 "name" : request.POST.get("name"),

@@ -13,12 +13,16 @@
 {% endblock %}
 
 {% block main_content %}
-<div class="row">
+<div class="row" style="margin-top:20px;">
 	<div class="col-lg-12">
-		<h1 class="page-header">
+		<div class="panel panel-default">
+		<div class="panel-body">
+		<h1>
 			<span id="firstnameText">{{ profile.user.first_name }}</span>
 			<span id="lastnameText">{{ profile.user.last_name }}</span>
 		</h1>
+		</div>
+		</div>
 	</div>
 </div>
 

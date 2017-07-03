@@ -126,8 +126,10 @@ class HomeView(TemplateView):
         employee_count = 0
         time_clock_count = 0
         for store in stores:
-            employee_count += store.employee_set.all().count()
-            time_clock_count += store.timeclock_set.all().count()
+            employees = store.employee_set.all()
+	    employee_count += employees.count()
+       	    for employee in employees:
+		time_clock_count += employee.timeclock_set.all().count()
 
         context["isManager"] = True
         context['employeeCount'] = employee_count

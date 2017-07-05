@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 class WeekCalendar:
 
     # self.calendar = None
-    calendar = calendar.Calendar(calendar.SUNDAY)
+    calendar = calendar.Calendar()
 
     week = []
     currentDate = None

@@ -596,7 +596,9 @@ class SchedulePDFView(PDFTemplateView):
         calendar = WeekCalendar(date)
 
         context["store"] = store
-        context["title"] = calendar.get_week_span()
+
+        context["from"] = calendar.get_week_beginning()
+        context["to"] = calendar.get_week_end()
         context["week"] = calendar.get_week()
         context["stores"] = calendar.get_week_schedule(stores = [store])
 

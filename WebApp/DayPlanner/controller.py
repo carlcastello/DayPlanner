@@ -27,8 +27,11 @@ class WeekCalendar:
     def get_week(self):
         return self.week
 
-    def get_week_span(self):
-        return "From:"+ str(self.week[0]) + "  To:" + str(self.week[6])
+    def get_week_beginning(self):
+        return self.week[0]
+
+    def get_week_end(self):
+        return self.week[6]
 
     def get_week_next(self):
         return str(self.nextWeekDate.year) + "-" + str(self.nextWeekDate.month) + "-" + str(self.nextWeekDate.day)

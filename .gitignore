@@ -89,3 +89,6 @@ pip-selfcheck.json
 
 #Pem
 *.pem
+
+# DB
+db.sqlite3

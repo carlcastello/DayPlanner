@@ -12,12 +12,20 @@
         	<div class="panel-body">
 			<h1>
             			Welcome to Day Viewer, {{ request.user.first_name }}!
-       			</h1>
+			</h1>
 		</div>	
 	</div>
     </div>
 </div>
-
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert alert-info">
+            <a href="https://drive.google.com/file/d/0B2HMY6xnGNUbUm90RWpTS1NQclE/view?usp=sharing" target="_blank">
+                <strong><i class="fa fa-book fa-fw"></i> User Manual </strong>
+            </a>
+        </div>
+    </div>
+</div>
 {% if messages %}
 	{% for message in messages %}
 		<div class="alert {{ message.tags }} alert-dismissible">

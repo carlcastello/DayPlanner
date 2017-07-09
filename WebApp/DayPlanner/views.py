@@ -197,7 +197,7 @@ class ProfileView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        user = get_object_or_404(User,pk=kwargs["pk"])
+        user = self.request.user
 
         history = Profile.history.filter(user=user)
         profile = Profile.objects.get(user=user)
@@ -322,7 +322,7 @@ class DetailUserView(TemplateView):
 
     method_decorator(csrf_protect)
     def post(self,request,*args, **kwargs):
-        user = User.objects.get(pk = kwargs["pk"])
+        user = get_object_or_404(User, pk=kwargs["pk"])
         # profile = Profile.objects.get(user=user)
         profile = user.profile
         first_name = user.first_name
@@ -424,7 +424,7 @@ class DetailUserView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DetailUserView, self).get_context_data(**kwargs)
 
-        user = User.objects.get(pk = kwargs["pk"])
+        user = get_object_or_404(User, pk=kwargs["pk"])
         # account = None
 
         history = Profile.history.filter(user=user)

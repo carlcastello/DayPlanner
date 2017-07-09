@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name = 'home' ),
     url(r'^(?P<date>[0-9-]+)/$', views.HomeView.as_view(), name = 'home' ),
 
-    url(r'^profile/(?P<pk>[0-9]+)/$', views.ProfileView.as_view(), name = 'profile'),
+    url(r'^profile/$', views.ProfileView.as_view(), name = 'profile'),
 
     url(r'^registered-users/$', views.RegisteredUsersView.as_view(), name = 'registered_users' ),
     url(r'^registered-users/users/(?P<pk>[0-9]+)/$', views.DetailUserView.as_view(), name = 'user_detail_view'),

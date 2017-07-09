@@ -19,6 +19,7 @@ from simple_history.models import HistoricalRecords
 # Create your models here.
 
 class Profile(models.Model):
+    
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE
@@ -117,7 +118,7 @@ class Manager(models.Model):
         on_delete=models.CASCADE
     )
     def __str__(self):
-        return self.profile.user.first_name + " " + self.profile.user.last_name
+        return self.profile.user.first_name + " " + self.profile.user.last_name + " - " + self.franchise.name
 
 
 class Employee(models.Model):

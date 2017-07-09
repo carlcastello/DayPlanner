@@ -17,14 +17,14 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="row">
-					<div class="col-xs-6">
+					<div class="col-md-6 col-lg-6">
 						<span class="panel-title panel-title-with-buttons">
                             <a href="#{{ store.pk }}" data-toggle="collapse">
 							    {{ store.name.title }} - {{ store.location.title }}
 						    </a>
                         </span>
 					</div>
-					<div class="col-xs-6 text-right">
+					<div class="col-md-6 col-lg-6 text-right">
 						<a href="{% url 'DayPlanner:time_clock' lastWeek %}" class="btn btn-success">
 							<i class="fa fa-arrow-left" aria-hidden="true"></i>
 							Last Week

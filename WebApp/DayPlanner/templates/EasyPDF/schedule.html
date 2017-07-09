@@ -127,9 +127,15 @@
                 {% for date, day in schedule.items %}
                 <td style="text-align:right;">
                     {% if day.startingTime %}
-                    {{ day.startingTime }}
-                    <br>
-                    {{ day.endTime }}
+                    <div style="position:relative;">
+                        <!--<div style="padding:0;">From:</div><div style="position:absolute; right:100%; padding:0;">{{ day.startingTime|time:"g:i a" }}</div>-->
+                        <div style="text-align:left; padding:0px;">From:</div>
+                        <div style="text-align:right; padding:0px; font-size:11px;">{{ day.startingTime|time:"g:i a" }}</div>
+                    </div>
+                    <div>
+                        <div style="text-align:left; padding:0px;">To:</div>
+                        <div style="text-align:right; padding:0px; font-size:11px;">{{ day.endTime|time:"g:i a" }}</div>
+                    </div>
                     {% else %}
                     N/A
                     {% endif %}

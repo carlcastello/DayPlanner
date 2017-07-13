@@ -12,8 +12,15 @@ Login
             <div class="login-panel panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Please Sign In</h3>
-                </div>
+	   	</div>
                 <div class="panel-body">
+		{% if form.non_field_errors %}
+    		<div class='alert-danger alert'>
+        	    {% for error in form.non_field_errors %}
+            	    {{ error }}
+        	    {% endfor %}
+    		</div>
+		{% endif %}
                     <form method="post">
                         {% csrf_token %}
                         {% for field in form %}
@@ -22,7 +29,14 @@ Login
                             {% render_field field placeholder=field.label class+="form-control"%}
                         </div>
                         {% endfor %}
-                        <button class="btn btn-lg btn-success btn-block" type="submit">Login</button>
+                        <a style="width:49%;" class="btn btn-info btn-md" href="https://drive.google.com/file/d/0B2HMY6xnGNUbUm90RWpTS1NQclE/view?usp=sharing" target="_blank"> 
+			<i class="fa fa-book" aria-hidden="true"></i> 
+			    &nbsp;User Manual
+			</a>
+			<button style="width:49%; float:right; btn-md" class="btn btn-success " type="submit">
+			<i class="fa fa-sign-in" aria-hidden="true"></i>
+			    &nbsp;Login
+			</button>
                     </form>
                 </div>
             </div>

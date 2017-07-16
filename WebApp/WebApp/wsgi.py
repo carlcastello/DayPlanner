@@ -16,7 +16,7 @@ from django.core.wsgi import get_wsgi_application
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # add your project directory to the sys.path
-project_home = os.path.join(BASE_DIR, 'WebApp')
+project_home = os.path.join(BASE_DIR, 'WebApp/WebApp')
 if project_home not in sys.path:
     sys.path.append(project_home)
 

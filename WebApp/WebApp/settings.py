@@ -90,8 +90,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dayplanner',
-        'USER': 'carlcastello',
-        'PASSWORD': 'The@ppleis0range',
+        'USER': 'dayplanneruser',
+        'PASSWORD': 'dayplanner123',
         'HOST': 'localhost',
         'PORT': '',
     }

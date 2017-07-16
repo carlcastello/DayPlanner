@@ -26,13 +26,7 @@ SECRET_KEY = '0b)%l=o+b3i29h4ccgxq4(na80kl6t_-w-66svt2ekvkzw_jeq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-	'127.0.0.1',
-	'52.60.204.45',
-	'www.day-scheduler.com',
-	'www.ai-scheduler.com',
-	'ai-scheduler.com'
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition

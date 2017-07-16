@@ -26,7 +26,10 @@ SECRET_KEY = '0b)%l=o+b3i29h4ccgxq4(na80kl6t_-w-66svt2ekvkzw_jeq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '172.31.2.33',
+    'dayplanner-env.ca-central-1.elasticbeanstalk.com'
+]
 
 
 # Application definition

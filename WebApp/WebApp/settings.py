@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '172.31.2.33',
+    '52.60.78.139',
     'dayplanner-env.ca-central-1.elasticbeanstalk.com'
 ]
 
